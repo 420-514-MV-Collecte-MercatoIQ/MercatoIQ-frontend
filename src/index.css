@@ -1,0 +1,38 @@
+:root {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+  background: #f9fafb;
+}
+
+body {
+  margin: 0;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #111827;
+}
+
+.navbar-brand {
+  margin-right: auto;
+  color: #fff;
+  font-weight: 700;
+}
+
+.navbar a {
+  color: #d1d5db;
+  text-decoration: none;
+}
+
+/* NavLink ajoute automatiquement la classe "active" au lien de la page courante */
+.navbar a.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.page {
+  padding: 1.5rem;
+}
