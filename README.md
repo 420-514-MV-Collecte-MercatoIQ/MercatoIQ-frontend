@@ -2,6 +2,22 @@
 
 Application React qui consomme l'API REST MercatoIQ (`/api/v1`) et présente le tableau de bord utilisateur et le tableau de bord administrateur.
 
+## Origine du client
+
+Nouvelle application créée pour ce projet. Aucun ancien projet n'a été réutilisé.
+
+**Éléments réutilisés** : gabarit officiel Vite (`npm create vite@latest`, gabarit `react` avec ESLint), sous licence MIT.
+- Configuration : `vite.config.js`, `eslint.config.js`, `index.html`
+- Point d'entrée `src/main.jsx` et icône `public/favicon.svg`
+
+**Éléments retirés du gabarit** : page de démonstration (`App.jsx`, `App.css`, `src/assets/`, `public/icons.svg`) et sa feuille de style.
+
+**Adaptations réalisées pour MercatoIQ** :
+- `index.html` : langue française et titre de l'application
+- `src/main.jsx` : ajout du routeur (`BrowserRouter`) et du contexte d'authentification (`AuthProvider`)
+- Contenu de `src/` développé pour le projet : client API, données simulées alignées sur le contrat du backend NestJS, authentification, routes protégées et pages
+- Dépendances ajoutées : React Router, Axios, Recharts
+
 ## Technologies
 
 | Outil | Rôle |
@@ -79,7 +95,7 @@ src/
 ## Authentification
 
 - Le JWT reçu à la connexion ou à l'inscription est conservé dans `localStorage`.
-- Un intercepteur Axios l'envoie dans l'en-tête `Authorization: Bearer <token>`.
+- Un intercepteur Axios l'envoie dans l'en-tête `Authorization: Bearer token`.
 - Une réponse `401` (hors `/auth/*`) vide la session et redirige vers `/login`.
 - `ProtectedRoute` ne fait que masquer l'interface : les autorisations sont vérifiées côté serveur.
 
@@ -89,4 +105,4 @@ src/
 - [x] #13 Pages d'authentification (Login, Register, statut connecté)
 - [ ] #14 Tableau de bord utilisateur
 - [ ] #15 Tableau paginé, CRUD et tableau de bord administrateur
-- [ ] Déploiement HTTPS
+- [ ]  Déploiement HTTPS
