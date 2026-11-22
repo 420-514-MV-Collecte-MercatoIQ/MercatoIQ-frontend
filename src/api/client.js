@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export const TOKEN_KEY = 'mercatoiq_token';
+export const USER_KEY = 'mercatoiq_user';
 
 export const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
 
@@ -16,5 +17,21 @@ client.interceptors.request.use((config) => {
     }
     return config;
 });
+
+client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const isAuthRequest = error.config?.url?.startsWith('/auth/');
+
+        if (error.response?.status === 401 && !isAuthRequest) {
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
+            // Rechargement complet : AuthProvider relit le localStorage (vide) et user redevient null
+            window.location.assign('/login');
+        }
+
+        return Promise.reject(error);
+    },
+);
 
 export default client;
