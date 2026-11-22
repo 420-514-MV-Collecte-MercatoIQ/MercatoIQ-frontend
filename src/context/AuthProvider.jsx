@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { AuthContext } from './AuthContext';
 import * as authApi from '../api/auth';
-import { TOKEN_KEY } from '../api/client';
+import { TOKEN_KEY, USER_KEY } from '../api/client';
 
-const USER_KEY = 'mercatoiq_user';
-
-// Au chargement de la page, on récupère l'utilisateur sauvegardé
 function readStoredUser() {
-    const stored = localStorage.getItem(USER_KEY);
-    return stored ? JSON.parse(stored) : null;
+    try {
+        const stored = localStorage.getItem(USER_KEY);
+        return stored ? JSON.parse(stored) : null;
+    } catch {
+        // Contenu corrompu (ex. modifié à la main) : on repart d'une session vide
+        localStorage.removeItem(USER_KEY);
+        return null;
+    }
 }
 
 export function AuthProvider({ children }) {
