@@ -1,20 +1,72 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppShell } from '../shared/components/layout/AppShell';
+import { ScrollToTop } from '../shared/components/layout/ScrollToTop';
 import { Card } from '../shared/components/ui/Card';
 import { Button } from '../shared/components/ui/Button';
-import { LandingPage } from '../features/landing/pages/LandingPage';
-import { LoginPage } from '../features/auth/pages/LoginPage';
-import { RegisterPage } from '../features/auth/pages/RegisterPage';
-import { DashboardPage } from '../features/dashboard/pages/DashboardPage';
-import { ClubRoiPage } from '../features/club-roi/pages/ClubRoiPage';
-import { ScoutingU23Page } from '../features/scouting/pages/ScoutingU23Page';
-import { UclVsDomesticPage } from '../features/ucl-performance/pages/UclVsDomesticPage';
-import { SuperSubsPage } from '../features/super-subs/pages/SuperSubsPage';
-import { PlayersPage } from '../features/players/pages/PlayersPage';
-import { PlayerDetailPage } from '../features/players/pages/PlayerDetailPage';
-import { TransfersPage } from '../features/transfers/pages/TransfersPage';
-import { SystemPage } from '../features/system/pages/SystemPage';
+import { PageLoader, TopProgressBar } from '../shared/components/ui/Loaders';
+import { GuestRoute, ProtectedRoute } from '../features/auth/components/RouteGuards';
+
+const LandingPage = lazy(() =>
+  import('../features/landing/pages/LandingPage').then((m) => ({ default: m.LandingPage })),
+);
+const LoginPage = lazy(() =>
+  import('../features/auth/pages/LoginPage').then((m) => ({ default: m.LoginPage })),
+);
+const RegisterPage = lazy(() =>
+  import('../features/auth/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })),
+);
+const AuthCallbackPage = lazy(() =>
+  import('../features/auth/pages/AuthCallbackPage').then((m) => ({
+    default: m.AuthCallbackPage,
+  })),
+);
+const ContactPage = lazy(() =>
+  import('../features/contact/pages/ContactPage').then((m) => ({ default: m.ContactPage })),
+);
+const AboutPage = lazy(() =>
+  import('../features/about/pages/AboutPage').then((m) => ({ default: m.AboutPage })),
+);
+const LegalPage = lazy(() =>
+  import('../features/legal/pages/LegalPage').then((m) => ({ default: m.LegalPage })),
+);
+const ProfilePage = lazy(() =>
+  import('../features/profile/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })),
+);
+const DashboardPage = lazy(() =>
+  import('../features/dashboard/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+);
+const ClubRoiPage = lazy(() =>
+  import('../features/club-roi/pages/ClubRoiPage').then((m) => ({ default: m.ClubRoiPage })),
+);
+const ScoutingU23Page = lazy(() =>
+  import('../features/scouting/pages/ScoutingU23Page').then((m) => ({
+    default: m.ScoutingU23Page,
+  })),
+);
+const UclVsDomesticPage = lazy(() =>
+  import('../features/ucl-performance/pages/UclVsDomesticPage').then((m) => ({
+    default: m.UclVsDomesticPage,
+  })),
+);
+const SuperSubsPage = lazy(() =>
+  import('../features/super-subs/pages/SuperSubsPage').then((m) => ({ default: m.SuperSubsPage })),
+);
+const PlayersPage = lazy(() =>
+  import('../features/players/pages/PlayersPage').then((m) => ({ default: m.PlayersPage })),
+);
+const PlayerDetailPage = lazy(() =>
+  import('../features/players/pages/PlayerDetailPage').then((m) => ({
+    default: m.PlayerDetailPage,
+  })),
+);
+const TransfersPage = lazy(() =>
+  import('../features/transfers/pages/TransfersPage').then((m) => ({ default: m.TransfersPage })),
+);
+const SystemPage = lazy(() =>
+  import('../features/system/pages/SystemPage').then((m) => ({ default: m.SystemPage })),
+);
 
 function NotFoundPage() {
   const { t } = useTranslation();
@@ -35,25 +87,65 @@ function NotFoundPage() {
 export function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+      <ScrollToTop />
+      <TopProgressBar />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<LegalPage mode="privacy" />} />
+          <Route path="/terms" element={<LegalPage mode="terms" />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
-        <Route element={<AppShell />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/club-roi" element={<ClubRoiPage />} />
-          <Route path="/scouting" element={<ScoutingU23Page />} />
-          <Route path="/ucl-vs-domestic" element={<UclVsDomesticPage />} />
-          <Route path="/super-subs" element={<SuperSubsPage />} />
-          <Route path="/players" element={<PlayersPage />} />
-          <Route path="/players/:id" element={<PlayerDetailPage />} />
-          <Route path="/transfers" element={<TransfersPage />} />
-          <Route path="/system" element={<SystemPage />} />
-        </Route>
+          <Route
+            path="/login"
+            element={
+              <GuestRoute>
+                <LoginPage />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <RegisterPage />
+              </GuestRoute>
+            }
+          />
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          <Route element={<AppShell />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/club-roi" element={<ClubRoiPage />} />
+            <Route path="/scouting" element={<ScoutingU23Page />} />
+            <Route path="/ucl-vs-domestic" element={<UclVsDomesticPage />} />
+            <Route path="/super-subs" element={<SuperSubsPage />} />
+            <Route path="/players" element={<PlayersPage />} />
+            <Route path="/players/:id" element={<PlayerDetailPage />} />
+            <Route path="/transfers" element={<TransfersPage />} />
+            <Route path="/system" element={<SystemPage />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <SystemPage />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

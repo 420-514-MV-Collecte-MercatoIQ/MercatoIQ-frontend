@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from '../../utils/formatters';
+import { Spinner } from './Loaders';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'pill';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -7,6 +8,7 @@ type ButtonSize = 'sm' | 'md' | 'lg';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  isLoading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
 }
@@ -18,10 +20,8 @@ const variantClasses: Record<ButtonVariant, string> = {
     'bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)]',
   ghost:
     'bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)]',
-  danger:
-    'bg-[var(--accent-negative)] text-white hover:opacity-90',
-  pill:
-    'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] hover:opacity-90',
+  danger: 'bg-[var(--accent-negative)] text-white hover:opacity-90',
+  pill: 'bg-[var(--accent-primary-soft)] text-[var(--accent-primary)] hover:opacity-90',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -33,6 +33,7 @@ const sizeClasses: Record<ButtonSize, string> = {
 export function Button({
   variant = 'primary',
   size = 'md',
+  isLoading = false,
   leftIcon,
   rightIcon,
   className,
@@ -44,7 +45,7 @@ export function Button({
   return (
     <button
       type={type}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       className={cn(
         'inline-flex items-center justify-center font-semibold transition-all cursor-pointer select-none',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -54,9 +55,9 @@ export function Button({
       )}
       {...rest}
     >
-      {leftIcon}
+      {isLoading ? <Spinner size="sm" /> : leftIcon}
       <span>{children}</span>
-      {rightIcon}
+      {!isLoading && rightIcon}
     </button>
   );
 }
