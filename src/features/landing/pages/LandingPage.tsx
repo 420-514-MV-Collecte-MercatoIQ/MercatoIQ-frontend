@@ -12,6 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { PublicNavbar } from '../../../shared/components/layout/PublicNavbar';
+import { Footer } from '../../../shared/components/layout/Footer';
 import { Button } from '../../../shared/components/ui/Button';
 import { Card } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
@@ -266,6 +267,8 @@ export function LandingPage() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </div>
   );
 }
