@@ -1,25 +1,33 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, Lock, Mail } from 'lucide-react';
 import { PublicNavbar } from '../../../shared/components/layout/PublicNavbar';
 import { Card } from '../../../shared/components/ui/Card';
 import { Input } from '../../../shared/components/ui/Input';
 import { Button } from '../../../shared/components/ui/Button';
+import { GoogleAuthButton } from '../components/GoogleAuthButton';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../../../shared/context/ToastContext';
 import { AppApiError } from '../../../shared/api/httpClient';
+import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 
 export function RegisterPage() {
   const { t } = useTranslation();
+  useDocumentTitle(t('common.register'));
+
   const { register } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const state = location.state as { from?: { pathname?: string } } | null;
+  const redirectTarget = state?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -42,7 +50,7 @@ export function RegisterPage() {
     try {
       await register({ email: email.trim(), password });
       showToast(t('auth.registerSuccess'), 'success');
-      navigate('/dashboard');
+      navigate(redirectTarget, { replace: true });
     } catch (err) {
       const msg =
         err instanceof AppApiError
@@ -70,6 +78,16 @@ export function RegisterPage() {
                 {t('auth.registerTitle')}
               </h1>
               <p className="text-sm text-[var(--text-secondary)]">{t('auth.registerSubtitle')}</p>
+            </div>
+
+            <GoogleAuthButton />
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-[var(--border-subtle)] w-full" />
+              <span className="px-3 text-[11px] uppercase tracking-wider font-semibold text-[var(--text-muted)] bg-[var(--bg-surface)] whitespace-nowrap">
+                {t('googleAuth.orDivider')}
+              </span>
+              <div className="border-t border-[var(--border-subtle)] w-full" />
             </div>
 
             {errorMsg && (
@@ -112,7 +130,7 @@ export function RegisterPage() {
                 type="submit"
                 size="lg"
                 className="w-full"
-                disabled={submitting}
+                isLoading={submitting}
                 rightIcon={<ArrowRight className="h-4 w-4" />}
               >
                 {submitting ? t('common.loading') : t('auth.submitRegister')}
@@ -132,6 +150,15 @@ export function RegisterPage() {
               >
                 {t('auth.continueGuest')}
               </Link>
+              <p className="text-[11px] text-[var(--text-muted)] pt-1">
+                <Link to="/terms" className="hover:underline">
+                  {t('legal.termsTitle')}
+                </Link>
+                {' · '}
+                <Link to="/privacy" className="hover:underline">
+                  {t('legal.privacyTitle')}
+                </Link>
+              </p>
             </div>
           </Card>
         </div>

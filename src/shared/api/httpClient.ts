@@ -3,6 +3,7 @@ import type { ApiErrorPayload } from '../types/common.types';
 
 export const TOKEN_STORAGE_KEY = 'mercatoiq_token';
 export const USER_STORAGE_KEY = 'mercatoiq_user';
+export const UNAUTHORIZED_EVENT = 'mercatoiq:unauthorized';
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.toString().trim() || 'http://localhost:3000/api/v1';
@@ -53,6 +54,11 @@ httpClient.interceptors.response.use(
     }
 
     const { status, data } = error.response;
+    const reqUrl = error.config?.url || '';
+    if (status === 401 && !reqUrl.includes('/auth/')) {
+      window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
+    }
+
     const rawMsg = data?.message;
     const details = Array.isArray(rawMsg)
       ? rawMsg.map(String)

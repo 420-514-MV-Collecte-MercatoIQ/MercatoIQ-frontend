@@ -1,9 +1,14 @@
 export type UserRole = 'user' | 'admin';
 
+export type AuthProviderType = 'local' | 'google';
+
 export interface AuthUser {
   id: string;
   email: string;
   role: UserRole;
+  name?: string;
+  avatarUrl?: string;
+  provider?: AuthProviderType;
 }
 
 export interface AuthResponse {
@@ -19,6 +24,10 @@ export interface LoginPayload {
 export interface RegisterPayload {
   email: string;
   password: string;
+}
+
+export interface GoogleAuthPayload {
+  id_token: string;
 }
 
 export interface PaginationMeta {
