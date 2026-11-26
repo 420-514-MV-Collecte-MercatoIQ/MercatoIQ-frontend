@@ -1,16 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#0F1115" />
-  <path
-    d="M16 7.5A8.5 8.5 0 1 0 24.5 16"
-    stroke="#FFFFFF"
-    stroke-width="2.8"
-    stroke-linecap="round"
-  />
-  <path
-    d="M11 21L19.5 12.5"
-    stroke="#FFFFFF"
-    stroke-width="2.8"
-    stroke-linecap="round"
-  />
-  <circle cx="22.5" cy="9.5" r="2.5" fill="#B8FF3B" />
+  <style>
+    .mark { fill: #0F172A; }
+    @media (prefers-color-scheme: dark) {
+      .mark { fill: #FFFFFF; }
+    }
+  </style>
+  <path class="mark" d="M4 8.5Q16 3.5 28 8.5L26.4 10.6Q16 6.4 5.6 10.6Z" />
+  <path class="mark" d="M5.5 13H10.2L16 20.2L21.8 13H26.5L23.4 27.5H20.1L21.8 18.6L16 25.4L10.2 18.6L11.9 27.5H8.6Z" />
 </svg>

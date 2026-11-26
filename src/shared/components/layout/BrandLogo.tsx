@@ -12,23 +12,15 @@ export function BrandLogo({
 }) {
   return (
     <Link to={to} className={cn('inline-flex items-center gap-2.5 group', className)}>
-      <div className="h-8 w-8 rounded-xl bg-[var(--bg-pill-active)] text-[var(--text-pill-active)] flex items-center justify-center shadow-sm transition-transform group-hover:scale-105">
-        <svg viewBox="0 0 32 32" className="h-5 w-5" fill="none" aria-hidden="true">
-          <path
-            d="M16 7.5A8.5 8.5 0 1 0 24.5 16"
-            stroke="currentColor"
-            strokeWidth="2.8"
-            strokeLinecap="round"
-          />
-          <path
-            d="M11 21L19.5 12.5"
-            stroke="currentColor"
-            strokeWidth="2.8"
-            strokeLinecap="round"
-          />
-          <circle cx="22.5" cy="9.5" r="2.6" fill="var(--accent-secondary)" />
-        </svg>
-      </div>
+      <svg
+        viewBox="0 0 32 32"
+        className="h-7 w-7 text-[var(--text-primary)] shrink-0 transition-transform group-hover:scale-105"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M4 8.5Q16 3.5 28 8.5L26.4 10.6Q16 6.4 5.6 10.6Z" />
+        <path d="M5.5 13H10.2L16 20.2L21.8 13H26.5L23.4 27.5H20.1L21.8 18.6L16 25.4L10.2 18.6L11.9 27.5H8.6Z" />
+      </svg>
       {!compact && (
         <span className="font-bold text-base tracking-tight text-[var(--text-primary)]">
           Mercato<span className="text-[var(--accent-primary)]">IQ</span>
