@@ -16,7 +16,7 @@ import {
   useUpdateTransferMutation,
 } from '../hooks/useTransfersQueries';
 import { useToast } from '../../../shared/context/ToastContext';
-import { AppApiError } from '../../../shared/api/httpClient';
+import { getApiErrorMessage } from '../../../shared/api/httpClient';
 
 interface TransferFormModalProps {
   open: boolean;
@@ -107,13 +107,7 @@ export function TransferFormModal({
       }
       onClose();
     } catch (err) {
-      const msg =
-        err instanceof AppApiError
-          ? err.details.join(' · ') || err.message
-          : err instanceof Error
-            ? err.message
-            : 'Request failed';
-      setErrorMsg(msg);
+      setErrorMsg(getApiErrorMessage(err, 'Request failed'));
     }
   };
 

@@ -14,7 +14,7 @@ import {
 } from '../../../shared/utils/payloadMappers';
 import { useCreatePlayerMutation, useUpdatePlayerMutation } from '../hooks/usePlayersQueries';
 import { useToast } from '../../../shared/context/ToastContext';
-import { AppApiError } from '../../../shared/api/httpClient';
+import { getApiErrorMessage } from '../../../shared/api/httpClient';
 
 interface PlayerFormModalProps {
   open: boolean;
@@ -118,13 +118,7 @@ export function PlayerFormModal({ open, onClose, editingPlayer }: PlayerFormModa
       }
       onClose();
     } catch (err) {
-      const msg =
-        err instanceof AppApiError
-          ? err.details.join(' · ') || err.message
-          : err instanceof Error
-            ? err.message
-            : 'Request failed';
-      setErrorMsg(msg);
+      setErrorMsg(getApiErrorMessage(err, 'Request failed'));
     }
   };
 

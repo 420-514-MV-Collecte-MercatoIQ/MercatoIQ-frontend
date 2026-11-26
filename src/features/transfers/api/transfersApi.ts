@@ -17,8 +17,20 @@ export async function getTransfers(
     return demoDataService.getTransfers(query);
   }
   const { data } = await httpClient.get<PaginatedResponse<SilverTransfer>>('/transfers', {
-    params: cleanQueryParams(query as Record<string, unknown>),
+    params: cleanQueryParams(query),
   });
+  return data;
+}
+
+export async function getTransferById(id: string): Promise<SilverTransfer> {
+  if (isDemoModeActive()) {
+    const found = demoDataService.getTransfer(id);
+    if (!found) {
+      throw new AppApiError(`Transfer #${id} not found`, { status: 404 });
+    }
+    return found;
+  }
+  const { data } = await httpClient.get<SilverTransfer>(`/transfers/${id}`);
   return data;
 }
 

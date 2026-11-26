@@ -16,6 +16,7 @@ import { Download } from 'lucide-react';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { PageHeader } from '../../../shared/components/ui/PageHeader';
 import { DataTable, type DataColumn } from '../../../shared/components/ui/DataTable';
 import { Pagination } from '../../../shared/components/ui/Pagination';
 import { ApiErrorBanner } from '../../../shared/components/ui/StateFeedback';
@@ -31,6 +32,7 @@ import { getCompetitionLabel } from '../../../shared/types/constants';
 import { exportToCsv } from '../../../shared/utils/exportCsv';
 import { useToast } from '../../../shared/context/ToastContext';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
+import { usePagination } from '../../../shared/hooks/usePagination';
 
 export function UclVsDomesticPage() {
   const { t, i18n } = useTranslation();
@@ -39,8 +41,7 @@ export function UclVsDomesticPage() {
   const { showToast } = useToast();
 
   const [filters, setFilters] = useState<AnalyticsFiltersState>({});
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const { page, limit, setPage, setLimit, resetPage } = usePagination(20);
 
   const query = useUclVsDomesticQuery({
     season: filters.season,
@@ -158,27 +159,27 @@ export function UclVsDomesticPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('ucl.title')}</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-0.5">{t('ucl.subtitle')}</p>
-        </div>
-        <Button
-          variant="secondary"
-          leftIcon={<Download className="h-4 w-4" />}
-          onClick={handleExport}
-          disabled={rows.length === 0}
-        >
-          {t('common.exportCsv')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('ucl.title')}
+        subtitle={t('ucl.subtitle')}
+        actions={
+          <Button
+            variant="secondary"
+            leftIcon={<Download className="h-4 w-4" />}
+            onClick={handleExport}
+            disabled={rows.length === 0}
+          >
+            {t('common.exportCsv')}
+          </Button>
+        }
+      />
 
       <AnalyticsFilterBar
         filters={filters}
         domesticOnly
         onChange={(next) => {
           setFilters(next);
-          setPage(1);
+          resetPage();
         }}
       />
 
@@ -287,14 +288,7 @@ export function UclVsDomesticPage() {
           rowKey={(r) => `${r.player_id}-${r.season}`}
           isLoading={query.isLoading}
         />
-        <Pagination
-          meta={query.data?.meta}
-          onPageChange={setPage}
-          onLimitChange={(l) => {
-            setLimit(l);
-            setPage(1);
-          }}
-        />
+        <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />
       </Card>
     </div>
   );

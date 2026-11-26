@@ -5,15 +5,17 @@ import { Activity, Play, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
-import { API_BASE_URL, AppApiError, httpClient } from '../../../shared/api/httpClient';
+import { API_BASE_URL, AppApiError, getApiErrorMessage, httpClient } from '../../../shared/api/httpClient';
 import { getHealthStatus } from '../../../shared/api/healthApi';
 import { useDemoMode } from '../../../shared/context/DemoModeContext';
 import { useAuth } from '../../auth/context/AuthContext';
 import { useToast } from '../../../shared/context/ToastContext';
+import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 import { formatDate } from '../../../shared/utils/formatters';
 
 export function SystemPage() {
   const { t, i18n } = useTranslation();
+  useDocumentTitle(t('system.title'));
   const lang = i18n.language;
   const { isDemoMode, toggleDemoMode } = useDemoMode();
   const { user, isAuthenticated, isAdmin } = useAuth();
@@ -33,10 +35,10 @@ export function SystemPage() {
       await httpClient.post('/admin/pipeline/trigger');
       showToast(t('system.pipelineTriggered'), 'success');
     } catch (err) {
-      if (err instanceof AppApiError) {
+      if (err instanceof AppApiError && !err.isNetworkError) {
         showToast(t('system.pipelineUnavailable', { status: err.status || 'ERR' }), 'error');
       } else {
-        showToast(t('common.apiOfflineTitle'), 'error');
+        showToast(getApiErrorMessage(err, t('common.apiOfflineTitle')), 'error');
       }
     } finally {
       setPipelineLoading(false);
