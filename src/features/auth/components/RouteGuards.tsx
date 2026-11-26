@@ -1,11 +1,12 @@
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ShieldAlert } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import type { UserRole } from '../../../shared/types/common.types';
 import { PageLoader } from '../../../shared/components/ui/Loaders';
 import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
+import { useAuth } from '../context/AuthContext';
+import { getRedirectPath } from '../utils/authSession';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -62,9 +63,7 @@ export function GuestRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated) {
-    const state = location.state as { from?: { pathname?: string } } | null;
-    const redirectTo = state?.from?.pathname || '/dashboard';
-    return <Navigate to={redirectTo} replace />;
+    return <Navigate to={getRedirectPath(location.state)} replace />;
   }
 
   return <>{children}</>;

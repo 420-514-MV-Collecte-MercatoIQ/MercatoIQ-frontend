@@ -21,7 +21,7 @@ export async function getAnalyticsKpis(query: KpisQueryParams): Promise<GoldKpis
     return demoDataService.getKpis(query);
   }
   const { data } = await httpClient.get<GoldKpisResponse>('/analytics/kpis', {
-    params: cleanQueryParams(query as Record<string, unknown>),
+    params: cleanQueryParams(query),
   });
   return data;
 }
@@ -34,7 +34,7 @@ export async function getClubRoi(
   }
   const { data } = await httpClient.get<PaginatedResponse<GoldClubTransferRoi>>(
     '/analytics/club-roi',
-    { params: cleanQueryParams(query as Record<string, unknown>) },
+    { params: cleanQueryParams(query) },
   );
   return data;
 }
@@ -47,7 +47,7 @@ export async function getScoutingU23(
   }
   const { data } = await httpClient.get<PaginatedResponse<GoldUndervaluedScouting>>(
     '/analytics/scouting-u23',
-    { params: cleanQueryParams(query as Record<string, unknown>) },
+    { params: cleanQueryParams(query) },
   );
   return data;
 }
@@ -60,7 +60,7 @@ export async function getUclVsDomestic(
   }
   const { data } = await httpClient.get<PaginatedResponse<GoldUclVsDomestic>>(
     '/analytics/ucl-vs-domestic',
-    { params: cleanQueryParams(query as Record<string, unknown>) },
+    { params: cleanQueryParams(query) },
   );
   return data;
 }
@@ -73,7 +73,7 @@ export async function getSuperSubs(
   }
   const { data } = await httpClient.get<PaginatedResponse<GoldSuperSubs>>(
     '/analytics/super-subs',
-    { params: cleanQueryParams(query as Record<string, unknown>) },
+    { params: cleanQueryParams(query) },
   );
   return data;
 }

@@ -6,22 +6,23 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import {
-  AppApiError,
-  TOKEN_STORAGE_KEY,
-  UNAUTHORIZED_EVENT,
-  USER_STORAGE_KEY,
-} from '../../../shared/api/httpClient';
+import { AppApiError, UNAUTHORIZED_EVENT } from '../../../shared/api/httpClient';
 import type {
   AuthResponse,
   AuthUser,
   LoginPayload,
   RegisterPayload,
-  UserRole,
 } from '../../../shared/types/common.types';
 import { googleLoginApi, loginApi, registerApi } from '../api/authApi';
 import { useDemoMode } from '../../../shared/context/DemoModeContext';
-import { decodeJwtPayload, isTokenExpired } from '../../../shared/utils/jwtUtils';
+import { decodeJwtPayload } from '../../../shared/utils/jwtUtils';
+import {
+  buildCallbackSession,
+  clearStoredSession,
+  readStoredSession,
+  saveStoredSession,
+  type CallbackAuthParams,
+} from '../utils/authSession';
 
 interface GoogleIdClaims {
   sub?: string;
@@ -42,32 +43,11 @@ interface AuthContextValue {
     credential: string,
   ) => Promise<{ response: AuthResponse; clientFallback: boolean }>;
   loginWithGoogleDemo: () => Promise<AuthResponse>;
-  loginFromCallback: (params: {
-    token: string;
-    email?: string;
-    role?: UserRole;
-    name?: string;
-    avatarUrl?: string;
-  }) => boolean;
+  loginFromCallback: (params: CallbackAuthParams) => boolean;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-
-function readStoredSession(): { token: string | null; user: AuthUser | null } {
-  try {
-    const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
-    const rawUser = localStorage.getItem(USER_STORAGE_KEY);
-    if (!storedToken || !rawUser || isTokenExpired(storedToken)) {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      localStorage.removeItem(USER_STORAGE_KEY);
-      return { token: null, user: null };
-    }
-    return { token: storedToken, user: JSON.parse(rawUser) as AuthUser };
-  } catch {
-    return { token: null, user: null };
-  }
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { isDemoMode } = useDemoMode();
@@ -76,15 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const persistSession = useCallback((res: AuthResponse) => {
-    localStorage.setItem(TOKEN_STORAGE_KEY, res.access_token);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(res.user));
+    saveStoredSession(res);
     setToken(res.access_token);
     setUser(res.user);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    localStorage.removeItem(USER_STORAGE_KEY);
+    clearStoredSession();
     setToken(null);
     setUser(null);
   }, []);
@@ -97,9 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const handleUnauthorized = () => logout();
-    window.addEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
-    return () => window.removeEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+    window.addEventListener(UNAUTHORIZED_EVENT, logout);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, logout);
   }, [logout]);
 
   const login = useCallback(
@@ -118,8 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return mockRes;
       }
       const res = await loginApi(payload);
-      persistSession({ ...res, user: { ...res.user, provider: 'local' } });
-      return res;
+      const enriched: AuthResponse = { ...res, user: { ...res.user, provider: 'local' } };
+      persistSession(enriched);
+      return enriched;
     },
     [isDemoMode, persistSession],
   );
@@ -140,8 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return mockRes;
       }
       const res = await registerApi(payload);
-      persistSession({ ...res, user: { ...res.user, provider: 'local' } });
-      return res;
+      const enriched: AuthResponse = { ...res, user: { ...res.user, provider: 'local' } };
+      persistSession(enriched);
+      return enriched;
     },
     [isDemoMode, persistSession],
   );
@@ -220,39 +199,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [persistSession]);
 
   const loginFromCallback = useCallback(
-    (params: {
-      token: string;
-      email?: string;
-      role?: UserRole;
-      name?: string;
-      avatarUrl?: string;
-    }): boolean => {
-      if (!params.token || isTokenExpired(params.token)) return false;
-      const claims = decodeJwtPayload<{
-        sub?: string;
-        email?: string;
-        role?: string;
-        name?: string;
-        picture?: string;
-      }>(params.token);
-
-      const resolvedEmail = params.email || claims?.email;
-      if (!resolvedEmail) return false;
-
-      const resolvedRole: UserRole =
-        params.role === 'admin' || claims?.role === 'admin' ? 'admin' : 'user';
-
-      persistSession({
-        access_token: params.token,
-        user: {
-          id: claims?.sub || 'oauth-user',
-          email: resolvedEmail,
-          role: resolvedRole,
-          name: params.name || claims?.name,
-          avatarUrl: params.avatarUrl || claims?.picture,
-          provider: 'google',
-        },
-      });
+    (params: CallbackAuthParams): boolean => {
+      const session = buildCallbackSession(params);
+      if (!session) return false;
+      persistSession(session);
       return true;
     },
     [persistSession],

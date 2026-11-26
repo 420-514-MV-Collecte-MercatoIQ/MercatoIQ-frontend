@@ -17,7 +17,7 @@ export async function getPlayers(
     return demoDataService.getPlayers(query);
   }
   const { data } = await httpClient.get<PaginatedResponse<SilverPlayer>>('/players', {
-    params: cleanQueryParams(query as Record<string, unknown>),
+    params: cleanQueryParams(query),
   });
   return data;
 }

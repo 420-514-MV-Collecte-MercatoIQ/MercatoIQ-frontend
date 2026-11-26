@@ -13,6 +13,7 @@ import { Download } from 'lucide-react';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { PageHeader } from '../../../shared/components/ui/PageHeader';
 import { DataTable, type DataColumn } from '../../../shared/components/ui/DataTable';
 import { Pagination } from '../../../shared/components/ui/Pagination';
 import { ApiErrorBanner } from '../../../shared/components/ui/StateFeedback';
@@ -28,11 +29,13 @@ import {
   formatCompactEur,
   formatPer90,
   formatRoiPercent,
+  normalizeRoiPercent,
 } from '../../../shared/utils/formatters';
 import { getCompetitionLabel } from '../../../shared/types/constants';
 import { exportToCsv } from '../../../shared/utils/exportCsv';
 import { useToast } from '../../../shared/context/ToastContext';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
+import { usePagination } from '../../../shared/hooks/usePagination';
 
 export function ClubRoiPage() {
   const { t, i18n } = useTranslation();
@@ -41,8 +44,7 @@ export function ClubRoiPage() {
   const { showToast } = useToast();
 
   const [filters, setFilters] = useState<AnalyticsFiltersState>({});
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const { page, limit, setPage, setLimit, resetPage } = usePagination(20);
 
   const query = useClubRoiQuery({
     season: filters.season,
@@ -56,20 +58,16 @@ export function ClubRoiPage() {
 
   const handleFilterChange = (next: AnalyticsFiltersState) => {
     setFilters(next);
-    setPage(1);
+    resetPage();
   };
 
-  const roiBarData = rows.slice(0, 8).map((c) => {
-    const numericRoi = c.roi ?? 0;
-    const pct = Math.abs(numericRoi) <= 10 ? numericRoi * 100 : numericRoi;
-    return {
-      label: c.club_name,
-      shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
-      value: Math.round(pct * 10) / 10,
-      displayValue: formatRoiPercent(c.roi, lang),
-      subLabel: `${getCompetitionLabel(c.competition_id)} · ${c.season}`,
-    };
-  });
+  const roiBarData = rows.slice(0, 8).map((c) => ({
+    label: c.club_name,
+    shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
+    value: normalizeRoiPercent(c.roi) ?? 0,
+    displayValue: formatRoiPercent(c.roi, lang),
+    subLabel: `${getCompetitionLabel(c.competition_id)} · ${c.season}`,
+  }));
 
   const spendVsGainData = rows.slice(0, 8).map((c) => ({
     name: c.club_name.split(' ').slice(0, 2).join(' '),
@@ -178,20 +176,20 @@ export function ClubRoiPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('clubRoi.title')}</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-0.5">{t('clubRoi.subtitle')}</p>
-        </div>
-        <Button
-          variant="secondary"
-          leftIcon={<Download className="h-4 w-4" />}
-          onClick={handleExport}
-          disabled={rows.length === 0}
-        >
-          {t('common.exportCsv')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('clubRoi.title')}
+        subtitle={t('clubRoi.subtitle')}
+        actions={
+          <Button
+            variant="secondary"
+            leftIcon={<Download className="h-4 w-4" />}
+            onClick={handleExport}
+            disabled={rows.length === 0}
+          >
+            {t('common.exportCsv')}
+          </Button>
+        }
+      />
 
       <AnalyticsFilterBar
         filters={filters}
@@ -266,14 +264,7 @@ export function ClubRoiPage() {
           rowKey={(r) => `${r.club_id}-${r.season}`}
           isLoading={query.isLoading}
         />
-        <Pagination
-          meta={query.data?.meta}
-          onPageChange={setPage}
-          onLimitChange={(l) => {
-            setLimit(l);
-            setPage(1);
-          }}
-        />
+        <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />
       </Card>
     </div>
   );

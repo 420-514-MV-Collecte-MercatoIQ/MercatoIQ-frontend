@@ -3,54 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
 import { Spinner } from '../../../shared/components/ui/Loaders';
-import { useAuth } from '../context/AuthContext';
+import { getApiErrorMessage } from '../../../shared/api/httpClient';
 import { useDemoMode } from '../../../shared/context/DemoModeContext';
 import { useToast } from '../../../shared/context/ToastContext';
-import { AppApiError } from '../../../shared/api/httpClient';
-
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        id?: {
-          initialize: (config: {
-            client_id: string;
-            callback: (response: { credential?: string }) => void;
-          }) => void;
-          prompt: (momentListener?: (notification: { isNotDisplayed: () => boolean }) => void) => void;
-        };
-      };
-    };
-  }
-}
+import { useAuth } from '../context/AuthContext';
+import { getRedirectPath } from '../utils/authSession';
+import { loadGoogleIdentityScript } from '../utils/googleIdentityLoader';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.toString().trim();
 const GOOGLE_OAUTH_URL = import.meta.env.VITE_GOOGLE_OAUTH_URL?.toString().trim();
-
-function loadGoogleIdentityScript(): Promise<void> {
-  if (window.google?.accounts?.id) {
-    return Promise.resolve();
-  }
-  return new Promise((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[src="https://accounts.google.com/gsi/client"]',
-    );
-    if (existing) {
-      existing.addEventListener('load', () => resolve(), { once: true });
-      existing.addEventListener('error', () => reject(new Error('Google script failed')), {
-        once: true,
-      });
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Google Identity Services'));
-    document.head.appendChild(script);
-  });
-}
 
 function GoogleLogoSvg() {
   return (
@@ -86,8 +47,7 @@ export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signu
   const [loading, setLoading] = useState(false);
   const [setupHintOpen, setSetupHintOpen] = useState(false);
 
-  const state = location.state as { from?: { pathname?: string } } | null;
-  const redirectTarget = state?.from?.pathname || '/dashboard';
+  const redirectTarget = getRedirectPath(location.state);
 
   const handleDemoGoogleSignIn = async () => {
     setLoading(true);
@@ -120,12 +80,7 @@ export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signu
 
     setLoading(true);
     try {
-      await loadGoogleIdentityScript();
-      const gis = window.google?.accounts?.id;
-      if (!gis) {
-        throw new Error(t('googleAuth.unavailable'));
-      }
-
+      const gis = await loadGoogleIdentityScript();
       gis.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: async (response) => {
@@ -142,11 +97,7 @@ export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signu
             );
             navigate(redirectTarget, { replace: true });
           } catch (err) {
-            const msg =
-              err instanceof AppApiError
-                ? err.details.join(' · ') || err.message
-                : t('googleAuth.unavailable');
-            showToast(msg, 'error');
+            showToast(getApiErrorMessage(err, t('googleAuth.unavailable')), 'error');
           } finally {
             setLoading(false);
           }

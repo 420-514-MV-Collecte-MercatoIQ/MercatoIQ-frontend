@@ -56,13 +56,18 @@ export function formatInteger(value: number | null | undefined, lang = 'en'): st
 }
 
 /**
- * Formats ROI or ratio values.
- * Note: Backend `roi` values may be stored as ratio (e.g., 0.42 = +42%) or percentage depending
- * on pipeline output. If |value| <= 10 we treat as decimal ratio (x100%), otherwise direct percentage.
+ * Normalizes ROI values that may be stored as a decimal ratio (e.g., 0.42 = 42%)
+ * or already as a percentage.
  */
-export function formatRoiPercent(value: number | null | undefined, lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+export function normalizeRoiPercent(value: number | null | undefined): number | null {
+  if (value === null || value === undefined || Number.isNaN(value)) return null;
   const pct = Math.abs(value) <= 10 ? value * 100 : value;
+  return Math.round(pct * 10) / 10;
+}
+
+export function formatRoiPercent(value: number | null | undefined, lang = 'en'): string {
+  const pct = normalizeRoiPercent(value);
+  if (pct === null) return '—';
   const sign = pct > 0 ? '+' : '';
   return `${sign}${pct.toLocaleString(resolveLocale(lang), {
     minimumFractionDigits: 1,

@@ -47,11 +47,10 @@ export function useUpdatePlayerMutation() {
   return useMutation({
     mutationFn: ({ playerId, payload }: { playerId: number; payload: UpdatePlayerPayload }) =>
       updatePlayer(playerId, payload),
-    onSuccess: (_data, vars) => {
+    onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['players'] });
       void qc.invalidateQueries({ queryKey: ['players', 'detail'] });
       void qc.invalidateQueries({ queryKey: ['analytics', 'kpis'] });
-      void vars;
     },
   });
 }

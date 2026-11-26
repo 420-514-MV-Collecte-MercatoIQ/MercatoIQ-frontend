@@ -25,6 +25,19 @@ export class AppApiError extends Error {
   }
 }
 
+export function getApiErrorMessage(
+  error: unknown,
+  fallback = 'An unexpected error occurred.',
+): string {
+  if (error instanceof AppApiError) {
+    return error.details.join(' · ') || error.message || fallback;
+  }
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  return fallback;
+}
+
 export const httpClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
