@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowRight, Download, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
@@ -21,9 +21,12 @@ import {
 import { TransferFormModal } from '../components/TransferFormModal';
 import { useToast } from '../../../shared/context/ToastContext';
 import { AppApiError } from '../../../shared/api/httpClient';
+import { exportToCsv } from '../../../shared/utils/exportCsv';
+import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 
 export function TransfersPage() {
   const { t, i18n } = useTranslation();
+  useDocumentTitle(t('transfers.title'));
   const lang = i18n.language;
   const { showToast } = useToast();
 
@@ -190,6 +193,27 @@ export function TransfersPage() {
     },
   ];
 
+  const transfers = query.data?.data ?? [];
+
+  const handleExport = () => {
+    exportToCsv(
+      'mercatoiq-transfers',
+      ['Player ID', 'From Club', 'To Club', 'Season', 'League', 'Type', 'Date', 'Fee EUR', 'Market Value EUR'],
+      transfers.map((tr) => [
+        tr.player_id,
+        tr.from_club_name,
+        tr.to_club_name,
+        tr.season,
+        tr.competition_id,
+        tr.transfer_type,
+        tr.transfer_date,
+        tr.transfer_fee_eur,
+        tr.market_value_at_transfer_eur,
+      ]),
+    );
+    showToast(t('common.exportedSuccess'), 'success');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -197,15 +221,25 @@ export function TransfersPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t('transfers.title')}</h1>
           <p className="text-sm text-[var(--text-secondary)] mt-0.5">{t('transfers.subtitle')}</p>
         </div>
-        <Button
-          leftIcon={<Plus className="h-4 w-4" />}
-          onClick={() => {
-            setEditingTransfer(null);
-            setFormOpen(true);
-          }}
-        >
-          {t('transfers.addTransfer')}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            leftIcon={<Download className="h-4 w-4" />}
+            onClick={handleExport}
+            disabled={transfers.length === 0}
+          >
+            {t('common.exportCsv')}
+          </Button>
+          <Button
+            leftIcon={<Plus className="h-4 w-4" />}
+            onClick={() => {
+              setEditingTransfer(null);
+              setFormOpen(true);
+            }}
+          >
+            {t('transfers.addTransfer')}
+          </Button>
+        </div>
       </div>
 
       <FilterBar

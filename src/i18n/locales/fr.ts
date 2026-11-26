@@ -42,6 +42,8 @@ export const fr: TranslationDictionary = {
     language: 'Langue',
     unknown: '—',
     backToList: 'Retour à la liste',
+    exportCsv: 'Exporter CSV',
+    exportedSuccess: 'Fichier CSV exporté avec succès.',
   },
   nav: {
     overview: 'Vue d’ensemble',
@@ -52,9 +54,44 @@ export const fr: TranslationDictionary = {
     players: 'Joueurs',
     transfers: 'Transferts',
     system: 'Système',
+    admin: 'Admin',
+    profile: 'Profil',
+    about: 'Méthodologie',
+    contact: 'Contact',
     features: 'Capacités',
     architecture: 'Architecture',
     openApp: 'Ouvrir le Dashboard',
+  },
+  googleAuth: {
+    continueWithGoogle: 'Continuer avec Google',
+    orDivider: 'ou continuer par courriel',
+    success: 'Connecté avec Google.',
+    demoSuccess: 'Connecté avec Google (Mode Démo).',
+    clientFallbackNotice:
+      'Connecté via votre profil Google. Configurez POST /auth/google sur le backend pour émettre des JWT serveur.',
+    cancelled: 'Connexion Google annulée.',
+    promptBlocked: 'La fenêtre Google One Tap a été bloquée par le navigateur.',
+    unavailable: 'La connexion Google est momentanément indisponible.',
+    missingConfigHint:
+      'Définissez VITE_GOOGLE_CLIENT_ID (ou VITE_GOOGLE_OAUTH_URL) dans .env pour activer Google OAuth, ou testez immédiatement en Mode Démo.',
+    tryGoogleDemo: 'Tester Google Sign-In en Mode Démo',
+    completingSignIn: 'Finalisation de la connexion Google...',
+    callbackInvalid: 'Jeton OAuth invalide ou expiré.',
+  },
+  guards: {
+    forbiddenTitle: '403 · Accès restreint',
+    forbiddenDescription:
+      'Votre compte ne possède pas les autorisations requises ({{role}}) pour accéder à cette page.',
+  },
+  loaders: {
+    preparingWorkspace: 'Préparation de l’espace MercatoIQ...',
+    syncingIntelligence: 'Synchronisation des données Gold & Silver',
+  },
+  errors: {
+    boundaryTitle: 'Une erreur est survenue',
+    boundaryDescription:
+      'Une erreur inattendue s’est produite lors du rendu. Rechargez la page ou revenez à la vue d’ensemble.',
+    reloadPage: 'Recharger la page',
   },
   landing: {
     badge: 'Architecture Médaillon · Bronze → Silver → Gold',
@@ -106,6 +143,129 @@ export const fr: TranslationDictionary = {
     loginSuccess: 'Connexion réussie.',
     registerSuccess: 'Compte créé. Bienvenue sur MercatoIQ !',
     demoLoginNotice: 'Mode Démo actif — session locale simulée sans backend.',
+  },
+  contact: {
+    badge: 'À VOTRE ÉCOUTE',
+    title: 'Contacter MercatoIQ',
+    subtitle:
+      'Des questions sur la couverture des ligues européennes, l’intégration API, les modèles ML ou le support technique ? Écrivez directement à notre équipe.',
+    formTitle: 'Envoyer un message',
+    formSubtitle: 'Notre équipe analytique et technique répond généralement sous 24 heures ouvrables.',
+    nameLabel: 'Nom complet',
+    namePlaceholder: 'Jean-Baptiste Laurent',
+    emailLabel: 'Courriel professionnel',
+    topicLabel: 'Sujet de la demande',
+    subjectLabel: 'Objet',
+    subjectPlaceholder: 'Accès API ou demande de données scouting',
+    messageLabel: 'Message',
+    messagePlaceholder: 'Décrivez votre club, votre besoin analytique ou votre question technique...',
+    submit: 'Envoyer le message',
+    validationError:
+      'Veuillez renseigner votre nom, un courriel valide et un message d’au moins 10 caractères.',
+    sentSuccess: 'Votre message a bien été transmis à notre équipe.',
+    sentLocalConfirm: 'Message enregistré localement (ticket généré). L’endpoint /contact est optionnel.',
+    successTitle: 'Message reçu !',
+    successBody:
+      'Merci pour votre message. Votre numéro de suivi est #{{ticket}}. Notre équipe vous répondra rapidement.',
+    sendAnother: 'Envoyer un autre message',
+    directTitle: 'Canaux directs',
+    emailChannel: 'Support & Intelligence',
+    locationLabel: 'Centre d’opérations',
+    locationValue: 'Montréal, QC · Couverture Ligues Européennes (CET/EST)',
+    slaLabel: 'Délai de réponse',
+    slaValue: 'Lun–Ven · < 24h ouvrables',
+    apiDocsLink: 'Ouvrir la documentation Swagger API',
+    faqTitle: 'Foire aux questions',
+    topics: {
+      scouting: 'Scouting & Analytics Gold',
+      api: 'Intégration API & Données',
+      support: 'Support technique',
+      partnership: 'Partenariat Club',
+    },
+    faq: {
+      q1: 'À quelle fréquence les données Gold sont-elles actualisées ?',
+      a1: 'Les collections Gold sont recalculées par le pipeline Python Médaillon et mises en cache dans Redis. L’horodatage exact apparaît sur la vue d’ensemble et la page Système.',
+      q2: 'Comment fonctionne le modèle ML de juste valeur U23 ?',
+      a2: 'Il combine temps de jeu, statistiques par 90 minutes, niveau du championnat et courbe d’âge pour estimer la valeur marchande réelle et repérer les profils sous-évalués.',
+      q3: 'Puis-je explorer MercatoIQ sans lancer MongoDB localement ?',
+      a3: 'Oui. Activez le Mode Démo depuis la barre supérieure ou la page Système pour tester tous les graphiques Gold et le CRUD Silver hors ligne.',
+      q4: 'Comment activer Google Sign-In en production ?',
+      a4: 'Ajoutez VITE_GOOGLE_CLIENT_ID dans votre .env frontend (ou VITE_GOOGLE_OAUTH_URL pour une redirection OAuth) et exposez POST /auth/google côté NestJS.',
+    },
+  },
+  about: {
+    badge: 'MÉTHODOLOGIE & ARCHITECTURE',
+    title: 'Au cœur du moteur Médaillon MercatoIQ',
+    subtitle:
+      'Des journaux bruts Transfermarkt & UEFA jusqu’aux modèles ML de scouting et de rentabilité financière.',
+    medallionTitle: 'Pipeline en trois couches',
+    bronzeTitle: 'Ingestion brute & instantanés',
+    bronzeDesc:
+      'Collecte brute des apparitions, fiches clubs et mouvements de mercato issus des compétitions européennes.',
+    silverTitle: 'Entités Silver normalisées',
+    silverDesc:
+      'Profils joueurs validés, courbes de valeur marchande et transferts exposés via les endpoints CRUD NestJS.',
+    goldTitle: 'Intelligence Gold pré-agrégée',
+    goldDesc:
+      'Vues analytiques haute performance mises en cache Redis pour le ROI Clubs, le Scouting U23, l’UCL et les Super-Subs.',
+    methodologyTitle: 'Définitions analytiques',
+    q1Formula: 'ROI = (Σ Plus-value marchande − Σ Indemnités payées) / Σ Indemnités · avec B+P par M€ investi.',
+    q2Formula: 'Ratio Sous-évaluation = Juste valeur ML (€) / Valeur marchande actuelle (€) pour les U23.',
+    q3Formula: 'Step-Up Δ = Buts/90 en UCL − Buts/90 en championnat domestique.',
+    q4Formula: 'Score Super-Sub = Différentiel pondéré de B+P/90 en sortie de banc vs titulaire.',
+    stackTitle: 'Stack moderne et typée',
+    stackDesc: 'React 19, TypeScript, Tailwind CSS v4, TanStack Query, Recharts et i18next connectés à NestJS + MongoDB + Redis.',
+    securityTitle: 'Contrôle d’accès robuste',
+    securityDesc: 'Jetons JWT Bearer, hachage bcrypt, validation DTO stricte, gardes RBAC et nettoyage automatique sur 401.',
+  },
+  profile: {
+    title: 'Compte & Préférences',
+    subtitle: 'Gérez votre session, vos droits d’accès et les réglages de l’interface',
+    emailProvider: 'Courriel & Mot de passe',
+    accountDetails: 'Identité de session',
+    userId: 'ID Utilisateur',
+    roleLabel: 'Rôle actif',
+    providerLabel: 'Fournisseur Auth',
+    statusLabel: 'Statut de session',
+    activeSession: 'Authentifié',
+    preferencesTitle: 'Préférences de l’espace',
+    appearance: 'Thème visuel',
+  },
+  legal: {
+    updatedLabel: 'Dernière mise à jour · Novembre 2026',
+    privacyTitle: 'Politique de confidentialité',
+    termsTitle: 'Conditions d’utilisation',
+    contactPrompt: 'Des questions concernant ces politiques ?',
+    privacy: {
+      s1Title: '1. Données traitées',
+      s1Body:
+        'MercatoIQ conserve uniquement le courriel, le mot de passe haché (ou les informations Google OAuth) et le rôle nécessaires à l’authentification.',
+      s2Title: '2. Stockage local & préférences',
+      s2Body:
+        'Votre navigateur mémorise localement le jeton JWT actif, la langue (EN/FR), le thème (Clair/Sombre) et l’état du Mode Démo.',
+      s3Title: '3. Données sportives et marchandes',
+      s3Body:
+        'Les fiches joueurs, transferts et agrégations Gold reposent sur des données publiques de performance du football européen.',
+    },
+    terms: {
+      s1Title: '1. Usage analytique',
+      s1Body:
+        'MercatoIQ fournit des indicateurs statistiques de scouting, estimations ML et indices de ROI à titre d’aide à la décision.',
+      s2Title: '2. Responsabilités & RBAC',
+      s2Body:
+        'Les utilisateurs authentifiés peuvent gérer les entités Silver. Les droits administrateur sont réservés au pilotage du pipeline.',
+      s3Title: '3. Disponibilité du service',
+      s3Body:
+        'En environnement auto-hébergé NestJS/MongoDB, la disponibilité dépend de votre serveur API et du cache Redis.',
+    },
+  },
+  footer: {
+    rights: 'Tous droits réservés.',
+    enginesHeading: 'Moteurs analytiques',
+    platformHeading: 'Plateforme',
+    companyHeading: 'À propos & Légal',
+    about: 'Méthodologie',
+    contact: 'Contact',
   },
   filters: {
     season: 'Saison',

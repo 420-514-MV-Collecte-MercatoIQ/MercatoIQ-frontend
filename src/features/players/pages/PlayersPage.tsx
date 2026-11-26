@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Eye, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Download, Eye, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
@@ -21,9 +21,12 @@ import {
 import { PlayerFormModal } from '../components/PlayerFormModal';
 import { useToast } from '../../../shared/context/ToastContext';
 import { AppApiError } from '../../../shared/api/httpClient';
+import { exportToCsv } from '../../../shared/utils/exportCsv';
+import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 
 export function PlayersPage() {
   const { t, i18n } = useTranslation();
+  useDocumentTitle(t('players.title'));
   const lang = i18n.language;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -174,6 +177,25 @@ export function PlayersPage() {
     },
   ];
 
+  const players = query.data?.data ?? [];
+
+  const handleExport = () => {
+    exportToCsv(
+      'mercatoiq-players',
+      ['Player ID', 'Name', 'Nationality', 'Position', 'Current Club', 'Market Value EUR', 'Peak Value EUR'],
+      players.map((p) => [
+        p.player_id,
+        p.player_name,
+        p.nationality,
+        p.position,
+        p.current_club?.club_name,
+        p.current_market_value_eur,
+        p.highest_market_value_eur,
+      ]),
+    );
+    showToast(t('common.exportedSuccess'), 'success');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -181,15 +203,25 @@ export function PlayersPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t('players.title')}</h1>
           <p className="text-sm text-[var(--text-secondary)] mt-0.5">{t('players.subtitle')}</p>
         </div>
-        <Button
-          leftIcon={<Plus className="h-4 w-4" />}
-          onClick={() => {
-            setEditingPlayer(null);
-            setFormOpen(true);
-          }}
-        >
-          {t('players.addPlayer')}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            leftIcon={<Download className="h-4 w-4" />}
+            onClick={handleExport}
+            disabled={players.length === 0}
+          >
+            {t('common.exportCsv')}
+          </Button>
+          <Button
+            leftIcon={<Plus className="h-4 w-4" />}
+            onClick={() => {
+              setEditingPlayer(null);
+              setFormOpen(true);
+            }}
+          >
+            {t('players.addPlayer')}
+          </Button>
+        </div>
       </div>
 
       <FilterBar

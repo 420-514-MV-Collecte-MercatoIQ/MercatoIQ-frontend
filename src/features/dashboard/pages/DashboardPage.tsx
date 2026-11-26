@@ -15,6 +15,8 @@ import { Card, CardHeader } from '../../../shared/components/ui/Card';
 import { StatCard } from '../../../shared/components/ui/StatCard';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { ApiErrorBanner, LoadingSkeleton } from '../../../shared/components/ui/StateFeedback';
+import { ChartCardSkeleton, KpiGridSkeleton } from '../../../shared/components/ui/Loaders';
+import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 import { StripedBarChart } from '../../../shared/components/charts/StripedBarChart';
 import { StripedProgressBar } from '../../../shared/components/charts/StripedProgressBar';
 import {
@@ -49,6 +51,7 @@ const EXPLORE_PILLS = [
 
 export function DashboardPage() {
   const { t, i18n } = useTranslation();
+  useDocumentTitle(t('dashboard.title'));
   const lang = i18n.language;
   const navigate = useNavigate();
 
@@ -131,7 +134,10 @@ export function DashboardPage() {
       )}
 
       {/* Top KPI Bento Grid */}
-      <div className="grid sm:grid-cols-2 xl:grid-cols-5 gap-4">
+      {kpisQuery.isLoading ? (
+        <KpiGridSkeleton count={5} />
+      ) : (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <StatCard
           label={t('dashboard.appearancesAnalyzed')}
           value={kpis ? formatCompactNumber(kpis.total_appearances_analysed, lang) : '—'}
@@ -166,7 +172,8 @@ export function DashboardPage() {
           badgeTone="secondary"
           icon={<Trophy className="h-4 w-4" />}
         />
-      </div>
+        </div>
+      )}
 
       {/* Zentra Main Split: Featured Striped ROI Chart + Explore Bar | Right Market Summary */}
       <div className="grid xl:grid-cols-12 gap-5">
@@ -188,7 +195,7 @@ export function DashboardPage() {
             />
 
             {clubRoiQuery.isLoading ? (
-              <LoadingSkeleton rows={5} />
+              <ChartCardSkeleton height={280} />
             ) : roiChartData.length > 0 ? (
               <StripedBarChart
                 data={roiChartData}

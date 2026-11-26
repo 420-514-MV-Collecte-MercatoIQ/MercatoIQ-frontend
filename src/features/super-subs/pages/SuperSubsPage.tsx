@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Download } from 'lucide-react';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
+import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { DataTable, type DataColumn } from '../../../shared/components/ui/DataTable';
 import { Pagination } from '../../../shared/components/ui/Pagination';
@@ -16,10 +18,15 @@ import { useSuperSubsQuery } from '../../analytics/hooks/useAnalyticsQueries';
 import type { GoldSuperSubs } from '../../../shared/types/domain.types';
 import { formatPer90 } from '../../../shared/utils/formatters';
 import { getCompetitionLabel } from '../../../shared/types/constants';
+import { exportToCsv } from '../../../shared/utils/exportCsv';
+import { useToast } from '../../../shared/context/ToastContext';
+import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 
 export function SuperSubsPage() {
   const { t, i18n } = useTranslation();
+  useDocumentTitle(t('superSubs.title'));
   const lang = i18n.language;
+  const { showToast } = useToast();
 
   const [filters, setFilters] = useState<AnalyticsFiltersState>({});
   const [page, setPage] = useState(1);
@@ -116,11 +123,39 @@ export function SuperSubsPage() {
     },
   ];
 
+  const handleExport = () => {
+    exportToCsv(
+      'mercatoiq-super-subs',
+      ['Player ID', 'Player', 'Club', 'League', 'Sub Apps', 'Sub G+A/90', 'Starter G+A/90', 'Super-Sub Score'],
+      rows.map((r) => [
+        r.player_id,
+        r.player_name,
+        r.club_name,
+        r.competition_id,
+        r.sub_appearances,
+        r.sub_goal_contributions_per_90,
+        r.starter_goal_contributions_per_90,
+        r.super_sub_score,
+      ]),
+    );
+    showToast(t('common.exportedSuccess'), 'success');
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('superSubs.title')}</h1>
-        <p className="text-sm text-[var(--text-secondary)] mt-0.5">{t('superSubs.subtitle')}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{t('superSubs.title')}</h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-0.5">{t('superSubs.subtitle')}</p>
+        </div>
+        <Button
+          variant="secondary"
+          leftIcon={<Download className="h-4 w-4" />}
+          onClick={handleExport}
+          disabled={rows.length === 0}
+        >
+          {t('common.exportCsv')}
+        </Button>
       </div>
 
       <AnalyticsFilterBar
