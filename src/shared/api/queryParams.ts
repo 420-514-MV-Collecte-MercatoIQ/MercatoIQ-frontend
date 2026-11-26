@@ -4,13 +4,13 @@ import type { PaginationParams } from '../types/common.types';
  * Strips undefined, null, empty strings, and NaN values so NestJS ValidationPipe
  * with `forbidNonWhitelisted` / `@IsInt()` never rejects blank filter controls.
  */
-export function cleanQueryParams<T extends Record<string, unknown>>(
+export function cleanQueryParams<T extends object>(
   params?: T,
 ): Record<string, string | number | boolean> {
   if (!params) return {};
   const cleaned: Record<string, string | number | boolean> = {};
 
-  for (const [key, raw] of Object.entries(params)) {
+  for (const [key, raw] of Object.entries(params as Record<string, unknown>)) {
     if (raw === undefined || raw === null || raw === '') continue;
     if (typeof raw === 'number' && Number.isNaN(raw)) continue;
 
