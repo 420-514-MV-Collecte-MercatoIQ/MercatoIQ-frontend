@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/Button';
+import { Spinner } from '../../../shared/components/ui/Loaders';
 import { useAuth } from '../context/AuthContext';
 import { useDemoMode } from '../../../shared/context/DemoModeContext';
 import { useToast } from '../../../shared/context/ToastContext';
@@ -75,7 +75,7 @@ function GoogleLogoSvg() {
   );
 }
 
-export function GoogleAuthButton() {
+export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const { t } = useTranslation();
   const { isDemoMode, enableDemoMode } = useDemoMode();
   const { loginWithGoogleCredential, loginWithGoogleDemo } = useAuth();
@@ -165,37 +165,37 @@ export function GoogleAuthButton() {
     }
   };
 
+  const buttonLabel =
+    mode === 'signup' ? t('googleAuth.signUpWithGoogle') : t('googleAuth.continueWithGoogle');
+
   return (
     <div className="space-y-3">
-      <Button
+      <button
         type="button"
-        variant="secondary"
-        size="lg"
-        className="w-full"
-        isLoading={loading}
-        leftIcon={<GoogleLogoSvg />}
+        disabled={loading}
         onClick={() => void handleGoogleClick()}
+        className="h-11 w-full rounded-lg border border-[var(--border-strong)] bg-transparent hover:bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] text-sm font-semibold inline-flex items-center justify-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {t('googleAuth.continueWithGoogle')}
-      </Button>
+        {loading ? <Spinner size="sm" /> : <GoogleLogoSvg />}
+        <span>{buttonLabel}</span>
+      </button>
 
       {setupHintOpen && (
-        <div className="rounded-2xl p-3.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-strong)] text-xs space-y-2.5">
+        <div className="rounded-lg p-3 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-xs space-y-2">
           <p className="text-[var(--text-secondary)] leading-relaxed">
             {t('googleAuth.missingConfigHint')}
           </p>
-          <Button
+          <button
             type="button"
-            size="sm"
-            variant="pill"
-            leftIcon={<Sparkles className="h-3.5 w-3.5" />}
             onClick={() => {
               enableDemoMode();
               void handleDemoGoogleSignIn();
             }}
+            className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent-primary)] hover:underline cursor-pointer"
           >
-            {t('googleAuth.tryGoogleDemo')}
-          </Button>
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>{t('googleAuth.tryGoogleDemo')}</span>
+          </button>
         </div>
       )}
     </div>
