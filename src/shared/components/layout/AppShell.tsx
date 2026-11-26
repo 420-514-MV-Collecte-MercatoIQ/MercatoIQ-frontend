@@ -1,77 +1,21 @@
 import { useState } from 'react';
-import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Activity,
-  ArrowLeftRight,
-  BarChart3,
-  LayoutDashboard,
-  LogOut,
-  Mail,
-  Menu,
-  Radar,
-  ShieldCheck,
-  Sparkles,
-  Trophy,
-  User,
-  Users,
-  X,
-  Zap,
-} from 'lucide-react';
+import { Menu, User, X } from 'lucide-react';
+import { useAuth } from '../../../features/auth/context/AuthContext';
+import { cn } from '../../utils/formatters';
 import { BrandLogo } from './BrandLogo';
 import { Footer } from './Footer';
-import { LanguageToggle } from '../ui/LanguageToggle';
-import { ThemeToggle } from '../ui/ThemeToggle';
-import { Button } from '../ui/Button';
-import { useAuth } from '../../../features/auth/context/AuthContext';
-import { useDemoMode } from '../../context/DemoModeContext';
-import { getHealthStatus } from '../../api/healthApi';
-import { cn } from '../../utils/formatters';
-
-interface NavItem {
-  to: string;
-  labelKey: string;
-  icon: typeof LayoutDashboard;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { to: '/dashboard', labelKey: 'nav.overview', icon: LayoutDashboard },
-  { to: '/club-roi', labelKey: 'nav.clubRoi', icon: BarChart3 },
-  { to: '/scouting', labelKey: 'nav.scouting', icon: Radar },
-  { to: '/ucl-vs-domestic', labelKey: 'nav.ucl', icon: Trophy },
-  { to: '/super-subs', labelKey: 'nav.superSubs', icon: Zap },
-  { to: '/players', labelKey: 'nav.players', icon: Users },
-  { to: '/transfers', labelKey: 'nav.transfers', icon: ArrowLeftRight },
-  { to: '/system', labelKey: 'nav.system', icon: Activity },
-  { to: '/contact', labelKey: 'nav.contact', icon: Mail },
-];
+import { UserSessionMenu } from './UserSessionMenu';
+import { APP_NAV_ITEMS, TOP_NAV_ITEMS } from './navigationConfig';
 
 export function AppShell() {
   const { t } = useTranslation();
-  const { user, isAuthenticated, logout } = useAuth();
-  const { isDemoMode, toggleDemoMode } = useDemoMode();
-  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const healthQuery = useQuery({
-    queryKey: ['health'],
-    queryFn: getHealthStatus,
-    enabled: !isDemoMode,
-    retry: false,
-    refetchInterval: 60_000,
-  });
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const userInitials = user ? (user.name || user.email).slice(0, 2).toUpperCase() : '';
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)]">
-      {/* Zentra-inspired Top Pill Navigation Bar */}
       <header className="sticky top-0 z-40 w-full bg-[var(--bg-surface)]/85 backdrop-blur-md border-b border-[var(--border-subtle)]">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -87,7 +31,7 @@ export function AppShell() {
           </div>
 
           <nav className="hidden lg:flex items-center gap-1 overflow-x-auto">
-            {NAV_ITEMS.slice(0, 8).map((item) => (
+            {TOP_NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -105,99 +49,12 @@ export function AppShell() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleDemoMode}
-              className={cn(
-                'hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border transition-all cursor-pointer',
-                isDemoMode
-                  ? 'bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] border-[var(--accent-secondary)]/30'
-                  : healthQuery.isSuccess
-                    ? 'bg-[var(--accent-positive-soft)] text-[var(--accent-positive)] border-[var(--accent-positive)]/30'
-                    : 'bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border-[var(--border-subtle)]',
-              )}
-              title={isDemoMode ? t('common.disableDemo') : t('common.enableDemo')}
-            >
-              {isDemoMode ? (
-                <>
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>{t('common.demoMode')}</span>
-                </>
-              ) : (
-                <>
-                  <span
-                    className={cn(
-                      'h-2 w-2 rounded-full',
-                      healthQuery.isSuccess
-                        ? 'bg-[var(--accent-positive)]'
-                        : healthQuery.isError
-                          ? 'bg-[var(--accent-negative)]'
-                          : 'bg-[var(--text-muted)]',
-                    )}
-                  />
-                  <span>{t('common.liveApi')}</span>
-                </>
-              )}
-            </button>
-
-            <LanguageToggle />
-            <ThemeToggle />
-
-            {isAuthenticated && user ? (
-              <div className="flex items-center gap-2 pl-1">
-                <Link
-                  to="/profile"
-                  className="inline-flex items-center gap-2 rounded-full p-1 pr-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors"
-                  title={t('nav.profile')}
-                >
-                  {user.avatarUrl ? (
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.name || user.email}
-                      className="h-7 w-7 rounded-full object-cover"
-                    />
-                  ) : (
-                    <span className="h-7 w-7 rounded-full bg-[var(--bg-pill-active)] text-[var(--text-pill-active)] text-[11px] font-bold flex items-center justify-center">
-                      {userInitials || <User className="h-3.5 w-3.5" />}
-                    </span>
-                  )}
-                  <div className="hidden xl:flex flex-col items-start leading-tight">
-                    <span className="text-xs font-semibold text-[var(--text-primary)] max-w-[120px] truncate">
-                      {user.name || user.email}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] inline-flex items-center gap-1">
-                      {user.role === 'admin' && (
-                        <ShieldCheck className="h-3 w-3 text-[var(--accent-primary)]" />
-                      )}
-                      {user.role}
-                    </span>
-                  </div>
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="h-9 w-9 rounded-full inline-flex items-center justify-center bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-negative)] transition-colors cursor-pointer"
-                  title={t('common.signOut')}
-                  aria-label={t('common.signOut')}
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <Link to="/login">
-                <Button size="sm" variant="secondary">
-                  {t('common.signIn')}
-                </Button>
-              </Link>
-            )}
-          </div>
+          <UserSessionMenu />
         </div>
 
-        {/* Mobile Nav Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 space-y-1">
-            {NAV_ITEMS.map((item) => {
+            {APP_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
                 <NavLink
@@ -239,11 +96,10 @@ export function AppShell() {
         )}
       </header>
 
-      {/* Main Content Area with Check Box-inspired Floating Icon Rail */}
       <div className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-6 flex gap-6">
         <aside className="hidden lg:flex flex-col items-center gap-2.5 pt-2 shrink-0">
           <div className="sticky top-24 flex flex-col gap-2 p-2 rounded-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-[var(--shadow-card)]">
-            {NAV_ITEMS.map((item) => {
+            {APP_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
                 <NavLink
