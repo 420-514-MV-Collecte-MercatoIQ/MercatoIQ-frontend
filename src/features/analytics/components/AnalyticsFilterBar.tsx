@@ -1,12 +1,13 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ClubSelect } from '../../../shared/components/ui/ClubSelect';
 import { FilterBar } from '../../../shared/components/ui/FilterBar';
-import { Input, Select } from '../../../shared/components/ui/Input';
+import { Select } from '../../../shared/components/ui/Input';
 import {
   POSITIONS,
   SEASONS,
   TOP_FIVE_LEAGUES,
 } from '../../../shared/types/constants';
-import { parsePositiveInt } from '../../../shared/utils/validation';
 
 export interface AnalyticsFiltersState {
   season?: number;
@@ -32,6 +33,7 @@ export function AnalyticsFilterBar({
 }: AnalyticsFilterBarProps) {
   const { t } = useTranslation();
   const leagues = TOP_FIVE_LEAGUES;
+  const [clubName, setClubName] = useState('');
 
   const hasActive = Boolean(
     filters.season || filters.competition_id || filters.position || filters.club_id,
@@ -105,18 +107,18 @@ export function AnalyticsFilterBar({
       )}
 
       {showClubId && (
-        <div className="w-32">
-          <Input
-            type="number"
-            min={1}
-            label={t('filters.clubId')}
-            placeholder={t('filters.clubIdPlaceholder')}
-            value={filters.club_id ?? ''}
-            onChange={(e) => {
-              onChange({
-                ...filters,
-                club_id: parsePositiveInt(e.target.value),
-              });
+        <div className="w-56">
+          <ClubSelect
+            label={t('filters.club')}
+            competitionId={filters.competition_id}
+            value={
+              filters.club_id
+                ? { club_id: filters.club_id, club_name: clubName || `#${filters.club_id}` }
+                : null
+            }
+            onChange={(club) => {
+              setClubName(club?.club_name ?? '');
+              onChange({ ...filters, club_id: club?.club_id });
             }}
           />
         </div>
