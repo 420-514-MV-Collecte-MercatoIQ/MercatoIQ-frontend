@@ -287,7 +287,22 @@ export const en = {
     playerSearchPlaceholder: 'Search player name...',
     clubSearchPlaceholder: 'Search destination club...',
   },
+  countries: {
+    England: 'England',
+    Spain: 'Spain',
+    Italy: 'Italy',
+    Germany: 'Germany',
+    France: 'France',
+    Europe: 'Europe',
+  },
   analytics: {
+    kickers: {
+      top5: 'TOP 5 · FIXED LEAGUE CHARTS',
+      q1: 'Q1 · FIXED LEAGUE CHARTS',
+      q2: 'Q2 · FIXED LEAGUE CHARTS',
+      q3: 'Q3 · FIXED LEAGUE CHARTS',
+      q4: 'Q4 · FIXED LEAGUE CHARTS',
+    },
     leaguesShown: 'leagues',
     showAllLeagues: 'Show all leagues',
     focusLeague: 'Filter',

@@ -37,6 +37,8 @@ describe('formatters', () => {
     expect(formatShortClubName('Paris Saint-Germain')).toBe('PSG');
     expect(formatShortClubName('Arsenal FC')).toBe('Arsenal');
     expect(formatShortClubName('Spezia Calcio')).toBe('Spezia');
+    expect(formatShortClubName('US Sassuolo')).toBe('Sassuolo');
+    expect(formatShortClubName('Huddersfield Town')).toBe('Huddersfi…');
   });
 
   it('disambiguates duplicate chart shortLabels by season or index', () => {

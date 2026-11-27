@@ -44,7 +44,7 @@ export function StripedBarChart({
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 16, right: 12, left: 0, bottom: 8 }}
+          margin={{ top: 14, right: 10, left: 0, bottom: 18 }}
           onMouseLeave={() => setActiveIndex(null)}
         >
           <defs>
@@ -79,6 +79,10 @@ export function StripedBarChart({
             dataKey="shortLabel"
             tickLine={false}
             axisLine={false}
+            angle={-25}
+            textAnchor="end"
+            height={48}
+            tickMargin={6}
             tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
             interval={0}
           />
@@ -114,6 +118,7 @@ export function StripedBarChart({
             dataKey="value"
             radius={[12, 12, 6, 6]}
             maxBarSize={44}
+            minPointSize={3}
             onMouseEnter={(_, idx) => setActiveIndex(idx)}
           >
             {data.map((entry, idx) => {

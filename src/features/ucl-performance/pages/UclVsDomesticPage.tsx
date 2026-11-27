@@ -190,7 +190,7 @@ export function UclVsDomesticPage() {
       {query.isError && <ApiErrorBanner error={query.error} onRetry={() => void query.refetch()} />}
 
       <LeagueChartsGrid
-        kicker="Q3 · FIXED LEAGUE CHARTS"
+        kicker={t('analytics.kickers.q3')}
         title={t('analytics.fixedLeagueUclTitle')}
         subtitle={t('analytics.fixedLeagueUclSubtitle')}
         series={uclByLeague}
@@ -199,28 +199,36 @@ export function UclVsDomesticPage() {
           setFilters((prev) => ({ ...prev, competition_id }));
           resetPage();
         }}
-        chartHeight={220}
+        chartHeight={240}
         renderChart={(items) => {
           const pts = disambiguateChartLabels(
-            items.map((r) => ({
-              shortLabel: r.player_name.split(' ').slice(-1)[0],
-              season: r.season,
-              fullName: r.player_name,
-              club: r.club_name || getCompetitionLabel(r.domestic_competition_id),
-              delta: r.goals_per_90_delta ?? 0,
-              uclG90: r.ucl_goals_per_90 ?? 0,
-              domG90: r.domestic_goals_per_90 ?? 0,
-            })),
+            items.map((r) => {
+              const rawLast = r.player_name.split(' ').slice(-1)[0] || r.player_name;
+              const shortLabel = rawLast.length > 10 ? `${rawLast.slice(0, 9).trimEnd()}…` : rawLast;
+              return {
+                shortLabel,
+                season: r.season,
+                fullName: r.player_name,
+                club: r.club_name || getCompetitionLabel(r.domestic_competition_id),
+                delta: r.goals_per_90_delta ?? 0,
+                uclG90: r.ucl_goals_per_90 ?? 0,
+                domG90: r.domestic_goals_per_90 ?? 0,
+              };
+            }),
           );
           return (
-            <div style={{ width: '100%', height: 220 }}>
+            <div style={{ width: '100%', height: 240 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={pts} margin={{ top: 10, right: 8, left: 0, bottom: 4 }}>
+                <BarChart data={pts} margin={{ top: 10, right: 8, left: 0, bottom: 18 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grid-line)" />
                   <XAxis
                     dataKey="shortLabel"
                     tickLine={false}
                     axisLine={false}
+                    angle={-25}
+                    textAnchor="end"
+                    height={48}
+                    tickMargin={6}
                     interval={0}
                     tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
                   />
@@ -251,7 +259,7 @@ export function UclVsDomesticPage() {
                       );
                     }}
                   />
-                  <Bar dataKey="delta" maxBarSize={44} radius={[6, 6, 6, 6]}>
+                  <Bar dataKey="delta" maxBarSize={44} minPointSize={3} radius={[6, 6, 6, 6]}>
                     {pts.map((entry, idx) => (
                       <Cell
                         key={`${entry.fullName}-${idx}`}

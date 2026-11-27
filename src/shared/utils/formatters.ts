@@ -173,7 +173,7 @@ export function formatShortClubName(name: string): string {
   let cleaned = trimmed;
   if (cleaned.split(/\s+/).length > 1) {
     cleaned = cleaned.replace(
-      /^(FC|CF|AC|AS|SC|SS|SV|VfB|VfL|UD|CD|CA|FK|SK|TSG|1\.\s*FC)\s+/i,
+      /^(FC|CF|AC|AS|SC|SS|SV|US|VfB|VfL|UD|CD|CA|FK|SK|TSG|1\.\s*FC)\s+/i,
       '',
     );
   }
@@ -182,7 +182,27 @@ export function formatShortClubName(name: string): string {
   }
   cleaned = cleaned.replace(/[&\s-]+$/g, '').trim() || trimmed;
 
-  return cleaned.length > 12 ? `${cleaned.slice(0, 11).trimEnd()}…` : cleaned;
+  return cleaned.length > 10 ? `${cleaned.slice(0, 9).trimEnd()}…` : cleaned;
+}
+
+/**
+ * Keeps the first entry per unique key while preserving original ordering.
+ */
+export function deduplicateByKey<T>(items: T[], getKey: (item: T) => string | number): T[] {
+  const seen = new Set<string | number>();
+  return items.filter((item) => {
+    const key = getKey(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * Formats large ROI axis percentages compactly (e.g. 1200% -> 1.2k%).
+ */
+export function formatCompactRoiTick(val: number): string {
+  return Math.abs(val) >= 1000 ? `${(val / 1000).toFixed(1)}k%` : `${val}%`;
 }
 
 /**

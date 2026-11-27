@@ -167,7 +167,7 @@ export function SuperSubsPage() {
       {query.isError && <ApiErrorBanner error={query.error} onRetry={() => void query.refetch()} />}
 
       <LeagueChartsGrid
-        kicker="Q4 · FIXED LEAGUE CHARTS"
+        kicker={t('analytics.kickers.q4')}
         title={t('analytics.fixedLeagueSuperSubsTitle')}
         subtitle={t('analytics.fixedLeagueSuperSubsSubtitle')}
         series={superSubsByLeague}

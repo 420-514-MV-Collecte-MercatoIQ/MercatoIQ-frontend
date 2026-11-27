@@ -290,7 +290,22 @@ export const fr: TranslationDictionary = {
     playerSearchPlaceholder: 'Rechercher un joueur...',
     clubSearchPlaceholder: 'Rechercher un club d’arrivée...',
   },
+  countries: {
+    England: 'Angleterre',
+    Spain: 'Espagne',
+    Italy: 'Italie',
+    Germany: 'Allemagne',
+    France: 'France',
+    Europe: 'Europe',
+  },
   analytics: {
+    kickers: {
+      top5: 'TOP 5 · GRAPHES FIXES PAR LIGUE',
+      q1: 'Q1 · GRAPHES FIXES PAR LIGUE',
+      q2: 'Q2 · GRAPHES FIXES PAR LIGUE',
+      q3: 'Q3 · GRAPHES FIXES PAR LIGUE',
+      q4: 'Q4 · GRAPHES FIXES PAR LIGUE',
+    },
     leaguesShown: 'ligues',
     showAllLeagues: 'Afficher toutes les ligues',
     focusLeague: 'Filtrer',

@@ -51,7 +51,7 @@ export function CapsuleComparisonChart({
       </div>
 
       <div className="space-y-2.5 dot-matrix-bg rounded-2xl p-4 border border-[var(--border-subtle)]">
-        {items.map((item) => {
+        {items.map((item, idx) => {
           const pPct = Math.min(100, Math.max(8, ((item.primaryValue ?? 0) / maxVal) * 100));
           const sPct = Math.min(100, Math.max(8, ((item.secondaryValue ?? 0) / maxVal) * 100));
           const delta =
@@ -73,7 +73,10 @@ export function CapsuleComparisonChart({
               {isHovered && (
                 <div
                   role="tooltip"
-                  className="absolute right-2 bottom-full mb-2 z-30 pointer-events-none"
+                  className={cn(
+                    'absolute right-2 z-30 pointer-events-none',
+                    idx === 0 ? 'top-full mt-2' : 'bottom-full mb-2',
+                  )}
                 >
                   <ChartTooltipCard
                     title={item.label}

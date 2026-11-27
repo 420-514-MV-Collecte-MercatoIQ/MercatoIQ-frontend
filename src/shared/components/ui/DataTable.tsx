@@ -46,7 +46,7 @@ export function DataTable<T>({
               <th
                 key={col.key}
                 className={cn(
-                  'py-3 px-3.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)] whitespace-nowrap',
+                  'py-3 px-2.5 xl:px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)] whitespace-nowrap',
                   col.align === 'right' && 'text-right',
                   col.align === 'center' && 'text-center',
                   col.className,
@@ -73,7 +73,7 @@ export function DataTable<T>({
                 <td
                   key={col.key}
                   className={cn(
-                    'py-3.5 px-3.5 text-sm text-[var(--text-primary)] whitespace-nowrap',
+                    'py-3.5 px-2.5 xl:px-3 text-sm text-[var(--text-primary)] whitespace-nowrap',
                     col.align === 'right' && 'text-right',
                     col.align === 'center' && 'text-center',
                     col.className,

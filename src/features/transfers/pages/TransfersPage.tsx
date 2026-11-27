@@ -118,10 +118,13 @@ export function TransfersPage() {
       key: 'route',
       header: t('transfers.columns.route'),
       render: (tr) => (
-        <div className="inline-flex items-center gap-2 font-medium">
-          <span className="text-[var(--text-secondary)]">{tr.from_club_name || '—'}</span>
-          <ArrowRight className="h-3.5 w-3.5 text-[var(--text-muted)] shrink-0" />
-          <span className="font-semibold text-[var(--text-primary)]">{tr.to_club_name || '—'}</span>
+        <div
+          className="inline-flex items-center gap-1.5 font-medium max-w-[200px]"
+          title={`${tr.from_club_name || '—'} → ${tr.to_club_name || '—'}`}
+        >
+          <span className="text-[var(--text-secondary)] truncate">{tr.from_club_name || '—'}</span>
+          <ArrowRight className="h-3 w-3 text-[var(--text-muted)] shrink-0" />
+          <span className="font-semibold text-[var(--text-primary)] truncate">{tr.to_club_name || '—'}</span>
         </div>
       ),
     },
@@ -179,10 +182,11 @@ export function TransfersPage() {
       header: t('common.actions'),
       align: 'right',
       render: (tr) => (
-        <div className="inline-flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+        <div className="inline-flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
           <Button
             variant="ghost"
             size="sm"
+            className="px-1.5"
             onClick={() => setViewingTransfer(tr)}
             aria-label={t('common.view')}
           >
@@ -191,6 +195,7 @@ export function TransfersPage() {
           <Button
             variant="ghost"
             size="sm"
+            className="px-1.5"
             onClick={() => {
               setEditingTransfer(tr);
               setFormOpen(true);
@@ -202,6 +207,7 @@ export function TransfersPage() {
           <Button
             variant="ghost"
             size="sm"
+            className="px-1.5"
             onClick={() => setDeletingTransfer(tr)}
             aria-label={t('common.delete')}
           >

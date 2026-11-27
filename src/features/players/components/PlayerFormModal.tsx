@@ -129,9 +129,12 @@ export function PlayerFormModal({ open, onClose, editingPlayer }: PlayerFormModa
       title={isEditing ? t('players.editPlayer') : t('players.addPlayer')}
       size="xl"
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form noValidate onSubmit={handleSubmit} className="space-y-5">
         {errorMsg && (
-          <div className="rounded-2xl px-4 py-3 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)]">
+          <div
+            role="alert"
+            className="rounded-2xl px-4 py-3 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)]"
+          >
             {errorMsg}
           </div>
         )}

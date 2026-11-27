@@ -72,10 +72,10 @@ export function UserSessionMenu() {
       <ThemeToggle />
 
       {isAuthenticated && user ? (
-        <div className="flex items-center gap-2 pl-1">
+        <div className="flex items-center gap-1.5 sm:gap-2 pl-0.5 sm:pl-1 shrink-0">
           <Link
             to="/profile"
-            className="inline-flex items-center gap-2 rounded-full p-1 pr-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors"
+            className="inline-flex items-center gap-2 rounded-full p-1 2xl:pr-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors"
             title={t('nav.profile')}
           >
             {user.avatarUrl ? (
@@ -89,7 +89,7 @@ export function UserSessionMenu() {
                 {userInitials || <User className="h-3.5 w-3.5" />}
               </span>
             )}
-            <div className="hidden xl:flex flex-col items-start leading-tight">
+            <div className="hidden 2xl:flex flex-col items-start leading-tight">
               <span className="text-xs font-semibold text-[var(--text-primary)] max-w-[120px] truncate">
                 {user.name || user.email}
               </span>
@@ -104,7 +104,7 @@ export function UserSessionMenu() {
           <button
             type="button"
             onClick={handleLogout}
-            className="h-9 w-9 rounded-full inline-flex items-center justify-center bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-negative)] transition-colors cursor-pointer"
+            className="h-8 w-8 sm:h-9 sm:w-9 rounded-full inline-flex items-center justify-center bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--accent-negative)] transition-colors cursor-pointer shrink-0"
             title={t('common.signOut')}
             aria-label={t('common.signOut')}
           >
@@ -113,7 +113,7 @@ export function UserSessionMenu() {
         </div>
       ) : (
         <Link to="/login" className="shrink-0">
-          <Button size="sm" variant="secondary" className="whitespace-nowrap">
+          <Button size="sm" variant="secondary" className="px-2.5 sm:px-3 whitespace-nowrap">
             {t('common.signIn')}
           </Button>
         </Link>

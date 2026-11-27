@@ -193,7 +193,7 @@ export function ScoutingU23Page() {
       {query.isError && <ApiErrorBanner error={query.error} onRetry={() => void query.refetch()} />}
 
       <LeagueChartsGrid
-        kicker="Q2 · FIXED LEAGUE CHARTS"
+        kicker={t('analytics.kickers.q2')}
         title={t('analytics.fixedLeagueScoutingTitle')}
         subtitle={t('analytics.fixedLeagueScoutingSubtitle')}
         series={scoutingByLeague}

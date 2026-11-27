@@ -17,9 +17,11 @@ import { StripedBarChart } from '../../../shared/components/charts/StripedBarCha
 import { StripedProgressBar } from '../../../shared/components/charts/StripedProgressBar';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 import {
+  deduplicateByKey,
   disambiguateChartLabels,
   formatCompactEur,
   formatCompactNumber,
+  formatCompactRoiTick,
   formatDate,
   formatPer90,
   formatRatio,
@@ -141,40 +143,45 @@ export function DashboardPage() {
       )}
 
       <LeagueChartsGrid
-        kicker="TOP 5 · FIXED LEAGUE CHARTS"
+        kicker={t('analytics.kickers.top5')}
         title={t('analytics.fixedLeagueRoiTitle')}
         subtitle={t('analytics.fixedLeagueRoiSubtitle')}
         series={clubRoiByLeague}
         selectedLeague={filters.competition_id}
         onSelectLeague={(competition_id) => setFilters((prev) => ({ ...prev, competition_id }))}
-        chartHeight={210}
-        renderChart={(items) => (
-          <StripedBarChart
-            data={disambiguateChartLabels(
-              items.map((c) => ({
-                label: c.club_name,
-                shortLabel: formatShortClubName(c.club_name),
-                season: c.season,
-                value: normalizeRoiPercent(c.roi) ?? 0,
-                displayValue: formatRoiPercent(c.roi, lang),
-                subLabel: `${c.season}`,
-                extraRows: [
-                  { label: t('dashboard.feesPaid'), value: formatCompactEur(c.total_fees_paid_eur, lang) },
-                  {
-                    label: t('dashboard.valueGain'),
-                    value: formatCompactEur(c.total_value_gain_eur, lang),
-                    tone: (c.total_value_gain_eur >= 0 ? 'positive' : 'negative') as
-                      | 'positive'
-                      | 'negative',
-                  },
-                ],
-              })),
-            )}
-            height={210}
-            valueLabel="ROI"
-            tickFormatter={(v) => `${v}%`}
-          />
-        )}
+        chartHeight={235}
+        renderChart={(items) => {
+          const chartItems = filters.season
+            ? items
+            : deduplicateByKey(items, (c) => c.club_id);
+          return (
+            <StripedBarChart
+              data={disambiguateChartLabels(
+                chartItems.map((c) => ({
+                  label: c.club_name,
+                  shortLabel: formatShortClubName(c.club_name),
+                  season: c.season,
+                  value: normalizeRoiPercent(c.roi) ?? 0,
+                  displayValue: formatRoiPercent(c.roi, lang),
+                  subLabel: `${c.season}`,
+                  extraRows: [
+                    { label: t('dashboard.feesPaid'), value: formatCompactEur(c.total_fees_paid_eur, lang) },
+                    {
+                      label: t('dashboard.valueGain'),
+                      value: formatCompactEur(c.total_value_gain_eur, lang),
+                      tone: (c.total_value_gain_eur >= 0 ? 'positive' : 'negative') as
+                        | 'positive'
+                        | 'negative',
+                    },
+                  ],
+                })),
+              )}
+              height={235}
+              valueLabel="ROI"
+              tickFormatter={formatCompactRoiTick}
+            />
+          );
+        }}
       />
 
       <div className="grid xl:grid-cols-12 gap-5">

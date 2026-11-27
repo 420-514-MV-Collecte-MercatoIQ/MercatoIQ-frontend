@@ -82,7 +82,7 @@ export function LeagueChartsGrid<T>({
           {visibleSeries.map(({ league, data, isLoading }) => (
             <Card key={league.id} className="flex flex-col">
               <CardHeader
-                kicker={`${league.id} · ${league.country.toUpperCase()}`}
+                kicker={`${league.id} · ${t(`countries.${league.country}`, { defaultValue: league.country }).toUpperCase()}`}
                 title={league.label}
                 action={
                   onSelectLeague && !selectedLeague ? (

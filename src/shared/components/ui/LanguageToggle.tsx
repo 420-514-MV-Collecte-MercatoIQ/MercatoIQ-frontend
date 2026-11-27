@@ -26,7 +26,7 @@ export function LanguageToggle({ className }: { className?: string }) {
             type="button"
             onClick={() => switchLang(lang)}
             className={cn(
-              'px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer',
+              'px-2 py-1 text-[11px] sm:px-2.5 sm:text-xs rounded-full font-bold uppercase tracking-wider transition-all cursor-pointer',
               active
                 ? 'bg-[var(--bg-pill-active)] text-[var(--text-pill-active)] shadow-sm'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',

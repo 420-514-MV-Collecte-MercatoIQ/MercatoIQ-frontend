@@ -31,7 +31,7 @@ export function LoginPage() {
   const [forgotOpen, setForgotOpen] = useState(false);
 
   const redirectTarget = getRedirectPath(location.state);
-  const canSubmit = email.trim().length > 0 && password.length > 0;
+  const canSubmit = email.trim().length > 0 && password.length >= 8;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -39,6 +39,10 @@ export function LoginPage() {
 
     if (!email.includes('@')) {
       setErrorMsg(t('auth.invalidEmail'));
+      return;
+    }
+    if (password.length < 8) {
+      setErrorMsg(t('auth.passwordTooShort'));
       return;
     }
     if (password.length > 72) {
@@ -79,12 +83,15 @@ export function LoginPage() {
       }
     >
       {errorMsg && (
-        <div className="rounded-lg px-3.5 py-2.5 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)] border border-[var(--accent-negative)]/30">
+        <div
+          role="alert"
+          className="rounded-lg px-3.5 py-2.5 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)] border border-[var(--accent-negative)]/30"
+        >
           {errorMsg}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-1.5">
           <label htmlFor="login-email" className="block text-xs font-medium text-[var(--text-secondary)]">
             {t('auth.emailLabel')}

@@ -17,12 +17,12 @@ export function AppShell() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)]">
       <header className="sticky top-0 z-40 w-full bg-[var(--bg-surface)]/85 backdrop-blur-md border-b border-[var(--border-subtle)]">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 xl:gap-3">
-          <div className="flex items-center gap-3 shrink-0">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2 xl:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="lg:hidden h-9 w-9 rounded-full inline-flex items-center justify-center bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)]"
+              className="lg:hidden h-8 w-8 sm:h-9 sm:w-9 rounded-full inline-flex items-center justify-center bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-[var(--text-primary)]"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -35,9 +35,10 @@ export function AppShell() {
               <NavLink
                 key={item.to}
                 to={item.to}
+                onClick={(e) => e.currentTarget.blur()}
                 className={({ isActive }) =>
                   cn(
-                    'px-2 xl:px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap',
+                    'px-2 xl:px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]',
                     isActive
                       ? 'bg-[var(--bg-pill-active)] text-[var(--text-pill-active)] shadow-[var(--shadow-pill)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)]',
