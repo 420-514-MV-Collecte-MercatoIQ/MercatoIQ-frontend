@@ -13,8 +13,6 @@ export const COMPETITIONS: CompetitionOption[] = [
   { id: 'L1', label: 'Bundesliga', country: 'Germany' },
   { id: 'FR1', label: 'Ligue 1', country: 'France' },
   { id: 'CL', label: 'UEFA Champions League', country: 'Europe' },
-  { id: 'NL1', label: 'Eredivisie', country: 'Netherlands' },
-  { id: 'PO1', label: 'Liga Portugal', country: 'Portugal' },
 ];
 
 export const TOP_FIVE_LEAGUE_IDS = ['GB1', 'ES1', 'IT1', 'L1', 'FR1'] as const;
@@ -38,7 +36,7 @@ export const TRANSFER_TYPES: TransferType[] = [
 
 export const FOOT_OPTIONS = ['right', 'left', 'both'] as const;
 
-export const SEASONS: number[] = Array.from({ length: 15 }, (_, idx) => 2026 - idx);
+export const SEASONS: number[] = Array.from({ length: 14 }, (_, idx) => 2025 - idx);
 
 export function getCompetitionLabel(id?: string): string {
   if (!id) return '—';
