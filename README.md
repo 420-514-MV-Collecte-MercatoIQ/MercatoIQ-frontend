@@ -1,23 +1,25 @@
 <div align="center">
 
-# ⚽ MercatoIQ Frontend
+<img src="public/favicon.svg" alt="MercatoIQ" width="52" height="52" />
+
+# MercatoIQ Frontend
 
 **European Football Performance & Financial Intelligence Web Application**  
 *Interactive Moneyball analytics across the UEFA Champions League & Top 5 European Leagues, paired with Silver domain management and real-time pipeline controls.*
 
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![TanStack Query](https://img.shields.io/badge/TanStack_Query-v5-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com/query/latest)
-[![Recharts](https://img.shields.io/badge/Recharts-2.15-22B5BF?style=for-the-badge)](https://recharts.org/)
-[![Vitest](https://img.shields.io/badge/Vitest-3-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![React](https://img.shields.io/badge/React-19-1E293B?style=flat-square&logo=react&logoColor=61DAFB&labelColor=0F172A)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-1E293B?style=flat-square&logo=typescript&logoColor=3178C6&labelColor=0F172A)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-1E293B?style=flat-square&logo=vite&logoColor=A78BFA&labelColor=0F172A)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-1E293B?style=flat-square&logo=tailwindcss&logoColor=38BDF8&labelColor=0F172A)](https://tailwindcss.com/)
+[![TanStack Query](https://img.shields.io/badge/TanStack_Query-v5-1E293B?style=flat-square&logo=reactquery&logoColor=FF4154&labelColor=0F172A)](https://tanstack.com/query/latest)
+[![Recharts](https://img.shields.io/badge/Recharts-2.15-1E293B?style=flat-square&labelColor=0F172A)](https://recharts.org/)
+[![Vitest](https://img.shields.io/badge/Vitest-3-1E293B?style=flat-square&logo=vitest&logoColor=A3E635&labelColor=0F172A)](https://vitest.dev/)
 
-[Architecture](#-architecture) · [Fixed Top-5 League Charts](#-fixed-top-5-league-chart-grids) · [Routes & Features](#-routes--features) · [API Integration](#-backend-api-integration) · [Quick Start](#-quick-start) · [Environment](#-environment-variables) · [Project Structure](#-project-structure) · [Scripts & Testing](#-scripts--testing)
+[Architecture](#architecture) · [Fixed Top-5 League Charts](#fixed-top-5-league-chart-grids) · [Routes & Features](#routes--features) · [API Integration](#backend-api-integration) · [Quick Start](#quick-start) · [Environment](#environment-variables) · [Project Structure](#project-structure) · [Scripts & Testing](#scripts--testing)
 
 </div>
 
-## 🧭 Architecture
+## Architecture
 
 The frontend is a **React 19 + TypeScript 5.8** single-page application built with **Vite 6** and **Tailwind CSS v4**. Route views in `src/app/router.tsx` are lazy-loaded via `React.lazy`, while `vite.config.ts` splits third-party dependencies into dedicated Rollup vendor chunks (`vendor-react`, `vendor-router`, `vendor-query`, `vendor-charts`, `vendor-i18n`, `vendor-icons`).
 
@@ -33,7 +35,7 @@ flowchart LR
     Api -.->|Opt-in Demo Mode| Demo["demoDataService<br/>analyticsFixtures & silverFixtures"]
 ```
 
-## 📊 Fixed Top-5 League Chart Grids
+## Fixed Top-5 League Chart Grids
 
 Across `/dashboard` and all four Gold analytical pages (`/club-roi`, `/scouting`, `/ucl-vs-domestic`, `/super-subs`), charts are organized into fixed multi-league grids powered by `LeagueChartsGrid` and parallel `use*ByLeagueQueries` hooks:
 
@@ -49,7 +51,7 @@ Across `/dashboard` and all four Gold analytical pages (`/club-roi`, `/scouting`
   - `CapsuleComparisonChart` (bench vs. starter G+A/90 capsule comparison with interactive hover tooltips)
   - `StripedProgressBar`, `ChartTooltip`, and `PlayerValuationChart` (market value trajectory)
 
-## 🗺️ Routes & Features
+## Routes & Features
 
 | Route | View | Access | Capabilities |
 | :--- | :--- | :---: | :--- |
@@ -73,7 +75,7 @@ Across `/dashboard` and all four Gold analytical pages (`/club-roi`, `/scouting`
 - **CSV Export (`exportToCsv`):** One-click export across all Q1 to Q4 analytics views, Players, and Transfers.
 - **Responsive Design:** Adaptive grid and navigation layout verified across desktop and `390px` mobile viewports.
 
-## 🔌 Backend API Integration
+## Backend API Integration
 
 All requests target `VITE_API_BASE_URL` (default: `http://localhost:3000/api/v1`) via `httpClient`.
 
@@ -88,7 +90,7 @@ All requests target `VITE_API_BASE_URL` (default: `http://localhost:3000/api/v1`
 
 > **Offline / Demo Mode:** When Demo Mode is enabled in the UI, `analyticsApi`, `playersApi`, `transfersApi`, and `AuthContext` resolve against local in-memory fixtures in `src/shared/mocks/demoData.ts`.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - **Node.js 20+** and **npm**
@@ -103,7 +105,7 @@ npm run dev
 
 The Vite dev server runs with `strictPort: true` on **`http://localhost:5173`**, matching the backend default `CORS_ORIGIN=http://localhost:5173`.
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 Copy `.env.example` to `.env` and adjust as needed:
 
@@ -113,7 +115,7 @@ Copy `.env.example` to `.env` and adjust as needed:
 | `VITE_GOOGLE_CLIENT_ID` | *(optional, empty by default)* | Google Identity Services (GIS) Web Client ID |
 | `VITE_GOOGLE_OAUTH_URL` | *(optional, empty by default)* | Backend Google OAuth redirect URL (e.g. `http://localhost:3000/api/v1/auth/google`) |
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 frontend/
@@ -161,7 +163,7 @@ frontend/
 └── vite.config.ts                       # Vite, Tailwind CSS v4, chunking & Vitest config
 ```
 
-## 🛠️ Scripts & Testing
+## Scripts & Testing
 
 ```bash
 npm run dev          # Start Vite dev server on http://localhost:5173
@@ -177,7 +179,7 @@ Powered by **Vitest** (`jsdom`) and **Testing Library** across 10 test suites:
 - **Components & Pages:** `LeagueChartsGrid.test.tsx`, `CapsuleComparisonChart.test.tsx`, `LoginPage.test.tsx`, `RouteGuards.test.tsx`, `PlayerFormModal.test.tsx`
 - **Utilities & Core Logic:** `cleanCodeHelpers.test.ts`, `formatters.test.ts`, `i18n.test.ts`, `jwtUtils.test.ts`, `payloadMappers.test.ts`
 
-## 🌿 Git Flow
+## Git Flow
 
 1. Always branch off **`develop`**: `git checkout develop && git pull origin develop`
 2. Create a feature branch: `git checkout -b feature/<ticket>-<short-name>` *(e.g. `feature/front-03-analytics`)*
