@@ -184,12 +184,12 @@ export function DashboardPage() {
         }}
       />
 
-      <div className="grid xl:grid-cols-12 gap-5">
-        <Card className="xl:col-span-7 flex flex-col justify-center">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+        <Card className="min-w-0 xl:col-span-7 flex flex-col justify-center">
           <ExplorerCommandBar />
         </Card>
 
-        <Card className="xl:col-span-5 flex flex-col justify-between gap-6">
+        <Card className="min-w-0 xl:col-span-5 flex flex-col justify-between gap-6">
           <div>
             <CardHeader
               kicker="SNAPSHOT"

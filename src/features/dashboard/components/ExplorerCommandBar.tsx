@@ -63,11 +63,11 @@ export function ExplorerCommandBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('dashboard.explorerPlaceholder')}
-          className="flex-1 h-10 rounded-2xl px-4 text-sm bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)] focus:outline-none focus:border-[var(--accent-primary)]"
+          className="flex-1 min-w-0 h-10 rounded-2xl px-3.5 sm:px-4 text-sm bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)] focus:outline-none focus:border-[var(--accent-primary)]"
         />
         <button
           type="submit"
-          className="h-10 px-4 rounded-2xl bg-[var(--bg-pill-active)] text-[var(--text-pill-active)] text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer hover:opacity-90"
+          className="h-10 px-3.5 sm:px-4 shrink-0 rounded-2xl bg-[var(--bg-pill-active)] text-[var(--text-pill-active)] text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer hover:opacity-90"
         >
           <span>{t('common.search')}</span>
           <ArrowRight className="h-3.5 w-3.5" />

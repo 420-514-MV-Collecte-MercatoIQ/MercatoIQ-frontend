@@ -27,10 +27,10 @@ export function StripedProgressBar({
           : 'striped-bar-primary';
 
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between gap-2 text-xs">
-        <span className="font-medium text-[var(--text-secondary)] truncate">{label}</span>
-        <span className="font-mono-num font-bold text-[var(--text-primary)]">{valueLabel}</span>
+    <div className="space-y-1.5 min-w-0">
+      <div className="flex items-center justify-between gap-2 text-xs min-w-0">
+        <span className="font-medium text-[var(--text-secondary)] truncate min-w-0">{label}</span>
+        <span className="font-mono-num font-bold text-[var(--text-primary)] shrink-0">{valueLabel}</span>
       </div>
       <div className="h-3 w-full rounded-full bg-[var(--bg-surface-elevated)] overflow-hidden p-0.5">
         <div
