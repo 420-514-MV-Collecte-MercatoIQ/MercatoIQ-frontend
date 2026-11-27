@@ -73,9 +73,6 @@ export const fr: TranslationDictionary = {
     cancelled: 'Connexion Google annulée.',
     promptBlocked: 'La fenêtre Google a été bloquée par votre navigateur.',
     unavailable: 'La connexion Google est momentanément indisponible.',
-    missingConfigHint:
-      'La connexion Google n’est pas encore configurée pour cet environnement. Vous pouvez l’essayer immédiatement en Mode Démo.',
-    tryGoogleDemo: 'Se connecter avec Google (Mode Démo)',
     completingSignIn: 'Connexion en cours...',
     callbackInvalid: 'Le lien de connexion est invalide ou expiré.',
   },

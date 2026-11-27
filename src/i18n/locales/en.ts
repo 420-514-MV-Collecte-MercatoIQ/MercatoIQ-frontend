@@ -71,9 +71,6 @@ export const en = {
     cancelled: 'Google sign-in was dismissed.',
     promptBlocked: 'Google prompt was blocked by your browser. Please allow popups to continue.',
     unavailable: 'Google Sign-In is currently unavailable.',
-    missingConfigHint:
-      'Google Sign-In is not configured for this environment yet. You can preview it right away in Demo Mode.',
-    tryGoogleDemo: 'Sign in with Google (Demo Mode)',
     completingSignIn: 'Completing sign-in...',
     callbackInvalid: 'Your sign-in link has expired or is invalid.',
   },
