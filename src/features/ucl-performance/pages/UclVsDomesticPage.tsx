@@ -13,7 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 import { Download } from 'lucide-react';
-import { Card, CardHeader } from '../../../shared/components/ui/Card';
+import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { PageHeader } from '../../../shared/components/ui/PageHeader';
@@ -31,7 +31,11 @@ import {
 } from '../../analytics/hooks/useAnalyticsQueries';
 import { LeagueChartsGrid } from '../../analytics/components/LeagueChartsGrid';
 import type { GoldUclVsDomestic } from '../../../shared/types/domain.types';
-import { formatPer90, formatSignedDelta } from '../../../shared/utils/formatters';
+import {
+  disambiguateChartLabels,
+  formatPer90,
+  formatSignedDelta,
+} from '../../../shared/utils/formatters';
 import { getCompetitionLabel } from '../../../shared/types/constants';
 import { exportToCsv } from '../../../shared/utils/exportCsv';
 import { useToast } from '../../../shared/context/ToastContext';
@@ -62,15 +66,6 @@ export function UclVsDomesticPage() {
   );
 
   const rows = query.data?.data ?? [];
-
-  const chartData = rows.slice(0, 8).map((r) => ({
-    name: r.player_name.split(' ').slice(-1)[0],
-    fullName: r.player_name,
-    club: r.club_name || getCompetitionLabel(r.domestic_competition_id),
-    delta: r.goals_per_90_delta ?? 0,
-    uclG90: r.ucl_goals_per_90 ?? 0,
-    domG90: r.domestic_goals_per_90 ?? 0,
-  }));
 
   const columns: DataColumn<GoldUclVsDomestic>[] = [
     {
@@ -194,102 +189,6 @@ export function UclVsDomesticPage() {
 
       {query.isError && <ApiErrorBanner error={query.error} onRetry={() => void query.refetch()} />}
 
-      {rows.length > 0 && (
-        <div className="grid xl:grid-cols-2 gap-5">
-          <Card>
-            <CardHeader kicker="Q3 · STEP-UP DELTA" title={t('ucl.deltaChartTitle')} />
-            <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grid-line)" />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  />
-                  <ReferenceLine y={0} stroke="var(--border-strong)" />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (!active || !payload?.length) return null;
-                      const d = payload[0].payload as (typeof chartData)[number];
-                      return (
-                        <ChartTooltipCard
-                          title={d.fullName}
-                          subtitle={d.club}
-                          rows={[
-                            {
-                              label: t('ucl.columns.goalsDelta'),
-                              value: formatSignedDelta(d.delta, lang),
-                              tone: d.delta >= 0 ? 'positive' : 'negative',
-                            },
-                            { label: t('ucl.columns.uclG90'), value: formatPer90(d.uclG90, lang) },
-                            { label: t('ucl.columns.domesticG90'), value: formatPer90(d.domG90, lang) },
-                          ]}
-                        />
-                      );
-                    }}
-                  />
-                  <Bar dataKey="delta" radius={[8, 8, 8, 8]}>
-                    {chartData.map((entry, idx) => (
-                      <Cell
-                        key={`${entry.fullName}-${idx}`}
-                        fill={entry.delta >= 0 ? 'var(--accent-positive)' : 'var(--accent-negative)'}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card>
-            <CardHeader kicker="Q3 · PER 90 SPLIT" title={t('ucl.comparisonTitle')} />
-            <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grid-line)" />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (!active || !payload?.length) return null;
-                      const d = payload[0].payload as (typeof chartData)[number];
-                      return (
-                        <ChartTooltipCard
-                          title={d.fullName}
-                          subtitle={d.club}
-                          rows={[
-                            { label: t('ucl.columns.uclG90'), value: formatPer90(d.uclG90, lang) },
-                            { label: t('ucl.columns.domesticG90'), value: formatPer90(d.domG90, lang) },
-                          ]}
-                        />
-                      );
-                    }}
-                  />
-                  <Bar dataKey="uclG90" fill="var(--accent-primary)" radius={[8, 8, 4, 4]} />
-                  <Bar dataKey="domG90" fill="var(--accent-secondary)" radius={[8, 8, 4, 4]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </div>
-      )}
-
       <LeagueChartsGrid
         kicker="Q3 · FIXED LEAGUE CHARTS"
         title={t('analytics.fixedLeagueUclTitle')}
@@ -302,23 +201,27 @@ export function UclVsDomesticPage() {
         }}
         chartHeight={220}
         renderChart={(items) => {
-          const pts = items.map((r) => ({
-            name: r.player_name.split(' ').slice(-1)[0],
-            fullName: r.player_name,
-            club: r.club_name || getCompetitionLabel(r.domestic_competition_id),
-            delta: r.goals_per_90_delta ?? 0,
-            uclG90: r.ucl_goals_per_90 ?? 0,
-            domG90: r.domestic_goals_per_90 ?? 0,
-          }));
+          const pts = disambiguateChartLabels(
+            items.map((r) => ({
+              shortLabel: r.player_name.split(' ').slice(-1)[0],
+              season: r.season,
+              fullName: r.player_name,
+              club: r.club_name || getCompetitionLabel(r.domestic_competition_id),
+              delta: r.goals_per_90_delta ?? 0,
+              uclG90: r.ucl_goals_per_90 ?? 0,
+              domG90: r.domestic_goals_per_90 ?? 0,
+            })),
+          );
           return (
             <div style={{ width: '100%', height: 220 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={pts} margin={{ top: 10, right: 8, left: 0, bottom: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grid-line)" />
                   <XAxis
-                    dataKey="name"
+                    dataKey="shortLabel"
                     tickLine={false}
                     axisLine={false}
+                    interval={0}
                     tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
                   />
                   <YAxis
@@ -334,7 +237,7 @@ export function UclVsDomesticPage() {
                       return (
                         <ChartTooltipCard
                           title={d.fullName}
-                          subtitle={d.club}
+                          subtitle={`${d.club} · ${d.season}`}
                           rows={[
                             {
                               label: t('ucl.columns.goalsDelta'),
@@ -348,7 +251,7 @@ export function UclVsDomesticPage() {
                       );
                     }}
                   />
-                  <Bar dataKey="delta" radius={[6, 6, 6, 6]}>
+                  <Bar dataKey="delta" maxBarSize={44} radius={[6, 6, 6, 6]}>
                     {pts.map((entry, idx) => (
                       <Cell
                         key={`${entry.fullName}-${idx}`}

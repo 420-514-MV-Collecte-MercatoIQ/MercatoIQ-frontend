@@ -12,14 +12,13 @@ import {
   ZAxis,
 } from 'recharts';
 import { Download } from 'lucide-react';
-import { Card, CardHeader } from '../../../shared/components/ui/Card';
+import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { PageHeader } from '../../../shared/components/ui/PageHeader';
 import { DataTable, type DataColumn } from '../../../shared/components/ui/DataTable';
 import { Pagination } from '../../../shared/components/ui/Pagination';
 import { ApiErrorBanner } from '../../../shared/components/ui/StateFeedback';
-import { StripedProgressBar } from '../../../shared/components/charts/StripedProgressBar';
 import { ChartTooltipCard } from '../../../shared/components/charts/ChartTooltip';
 import {
   AnalyticsFilterBar,
@@ -64,16 +63,6 @@ export function ScoutingU23Page() {
   );
 
   const rows = query.data?.data ?? [];
-
-  const scatterData = rows.map((p) => ({
-    name: p.player_name,
-    club: p.club_name || p.competition_id,
-    marketM: Math.round((p.market_value_eur / 1_000_000) * 10) / 10,
-    estimatedM: Math.round((p.estimated_value_eur / 1_000_000) * 10) / 10,
-    ratio: p.undervalue_ratio,
-  }));
-
-  const maxRatio = Math.max(2, ...rows.map((r) => r.undervalue_ratio));
 
   const columns: DataColumn<GoldUndervaluedScouting>[] = [
     {
@@ -202,79 +191,6 @@ export function ScoutingU23Page() {
       />
 
       {query.isError && <ApiErrorBanner error={query.error} onRetry={() => void query.refetch()} />}
-
-      {rows.length > 0 && (
-        <div className="grid xl:grid-cols-12 gap-5">
-          <Card className="xl:col-span-7">
-            <CardHeader
-              kicker="Q2 · ML VALUATION"
-              title={t('scouting.scatterTitle')}
-              subtitle={t('scouting.scatterSubtitle')}
-            />
-            <div style={{ width: '100%', height: 280 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 12, right: 16, bottom: 8, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" />
-                  <XAxis
-                    type="number"
-                    dataKey="marketM"
-                    name={t('scouting.columns.marketValue')}
-                    tickFormatter={(v) => `€${v}M`}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  />
-                  <YAxis
-                    type="number"
-                    dataKey="estimatedM"
-                    name={t('scouting.columns.estimatedValue')}
-                    tickFormatter={(v) => `€${v}M`}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  />
-                  <ZAxis type="number" dataKey="ratio" range={[80, 320]} />
-                  <Tooltip
-                    cursor={{ strokeDasharray: '3 3' }}
-                    content={({ active, payload }) => {
-                      if (!active || !payload?.length) return null;
-                      const d = payload[0].payload as (typeof scatterData)[number];
-                      return (
-                        <ChartTooltipCard
-                          title={d.name}
-                          subtitle={d.club}
-                          rows={[
-                            { label: t('scouting.columns.marketValue'), value: `€${d.marketM}M` },
-                            {
-                              label: t('scouting.columns.estimatedValue'),
-                              value: `€${d.estimatedM}M`,
-                              tone: 'positive',
-                            },
-                            { label: t('scouting.columns.ratio'), value: `${d.ratio.toFixed(2)}x` },
-                          ]}
-                        />
-                      );
-                    }}
-                  />
-                  <Scatter data={scatterData} fill="var(--accent-primary)" />
-                </ScatterChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="xl:col-span-5">
-            <CardHeader kicker="TOP TARGETS" title={t('scouting.topRatioTitle')} />
-            <div className="space-y-4">
-              {rows.slice(0, 5).map((item) => (
-                <StripedProgressBar
-                  key={`${item.player_id}-${item.season}`}
-                  label={`${item.player_name} (${item.club_name || item.competition_id})`}
-                  valueLabel={formatRatio(item.undervalue_ratio, 'x', lang)}
-                  percentage={(item.undervalue_ratio / maxRatio) * 100}
-                  tone="positive"
-                  subLabel={`${formatCompactEur(item.market_value_eur, lang)} → ${formatCompactEur(item.estimated_value_eur, lang)}`}
-                />
-              ))}
-            </div>
-          </Card>
-        </div>
-      )}
 
       <LeagueChartsGrid
         kicker="Q2 · FIXED LEAGUE CHARTS"

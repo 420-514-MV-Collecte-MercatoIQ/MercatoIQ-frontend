@@ -79,7 +79,7 @@ export function StripedBarChart({
             dataKey="shortLabel"
             tickLine={false}
             axisLine={false}
-            tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 600 }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
             interval={0}
           />
           <YAxis
@@ -113,7 +113,7 @@ export function StripedBarChart({
           <Bar
             dataKey="value"
             radius={[12, 12, 6, 6]}
-            maxBarSize={68}
+            maxBarSize={44}
             onMouseEnter={(_, idx) => setActiveIndex(idx)}
           >
             {data.map((entry, idx) => {

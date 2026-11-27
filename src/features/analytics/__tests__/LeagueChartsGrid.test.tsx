@@ -49,4 +49,25 @@ describe('LeagueChartsGrid', () => {
     fireEvent.click(screen.getByRole('button'));
     expect(onSelectLeague).toHaveBeenCalledWith(undefined);
   });
+
+  it('renders defensive empty state with reset action when selectedLeague is outside Top 5', () => {
+    const onSelectLeague = vi.fn();
+    render(
+      <LeagueChartsGrid
+        kicker="TOP 5"
+        title="Fixed League Charts"
+        series={mockSeries}
+        selectedLeague="CL"
+        onSelectLeague={onSelectLeague}
+        renderChart={(_items, leagueId) => <div data-testid={`chart-${leagueId}`}>{leagueId}</div>}
+      />,
+    );
+
+    expect(screen.getByText(/0 \/ 5/)).toBeInTheDocument();
+    expect(screen.getByText('No matching records found')).toBeInTheDocument();
+    const showAllButtons = screen.getAllByRole('button', { name: 'Show all leagues' });
+    expect(showAllButtons.length).toBeGreaterThanOrEqual(1);
+    fireEvent.click(showAllButtons[0]);
+    expect(onSelectLeague).toHaveBeenCalledWith(undefined);
+  });
 });

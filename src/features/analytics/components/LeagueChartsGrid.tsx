@@ -65,44 +65,58 @@ export function LeagueChartsGrid<T>({
         </div>
       </div>
 
-      <div className={gridClass}>
-        {visibleSeries.map(({ league, data, isLoading }) => (
-          <Card key={league.id} className="flex flex-col justify-between">
-            <CardHeader
-              kicker={`${league.id} · ${league.country.toUpperCase()}`}
-              title={league.label}
-              action={
-                onSelectLeague && !selectedLeague ? (
-                  <button
-                    type="button"
-                    onClick={() => onSelectLeague(league.id)}
-                    className="text-[11px] font-semibold text-[var(--accent-primary)] hover:underline cursor-pointer"
-                  >
-                    {t('analytics.focusLeague')}
-                  </button>
-                ) : (
-                  <Badge tone="primary" className="font-mono-num">
-                    {league.id}
-                  </Badge>
-                )
-              }
-            />
+      {visibleSeries.length === 0 ? (
+        <Card className="py-10 text-center space-y-3">
+          <div className="text-sm font-semibold text-[var(--text-primary)]">{t('common.noData')}</div>
+          <p className="text-xs text-[var(--text-secondary)]">{t('common.noDataHint')}</p>
+          {onSelectLeague && (
+            <div className="pt-1">
+              <Button variant="secondary" size="sm" onClick={() => onSelectLeague(undefined)}>
+                {t('analytics.showAllLeagues')}
+              </Button>
+            </div>
+          )}
+        </Card>
+      ) : (
+        <div className={gridClass}>
+          {visibleSeries.map(({ league, data, isLoading }) => (
+            <Card key={league.id} className="flex flex-col">
+              <CardHeader
+                kicker={`${league.id} · ${league.country.toUpperCase()}`}
+                title={league.label}
+                action={
+                  onSelectLeague && !selectedLeague ? (
+                    <button
+                      type="button"
+                      onClick={() => onSelectLeague(league.id)}
+                      className="text-[11px] font-semibold text-[var(--accent-primary)] hover:underline cursor-pointer"
+                    >
+                      {t('analytics.focusLeague')}
+                    </button>
+                  ) : (
+                    <Badge tone="primary" className="font-mono-num">
+                      {league.id}
+                    </Badge>
+                  )
+                }
+              />
 
-            {isLoading ? (
-              <ChartCardSkeleton height={chartHeight} />
-            ) : data.length > 0 ? (
-              renderChart(data, league.id)
-            ) : (
-              <div
-                style={{ height: chartHeight }}
-                className="flex items-center justify-center text-xs text-[var(--text-muted)] text-center px-4"
-              >
-                {t('common.noData')}
-              </div>
-            )}
-          </Card>
-        ))}
-      </div>
+              {isLoading ? (
+                <ChartCardSkeleton height={chartHeight} />
+              ) : data.length > 0 ? (
+                renderChart(data, league.id)
+              ) : (
+                <div
+                  style={{ height: chartHeight }}
+                  className="flex items-center justify-center text-xs text-[var(--text-muted)] text-center px-4"
+                >
+                  {t('common.noData')}
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

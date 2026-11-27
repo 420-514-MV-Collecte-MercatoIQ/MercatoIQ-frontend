@@ -17,8 +17,8 @@ export function AppShell() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)]">
       <header className="sticky top-0 z-40 w-full bg-[var(--bg-surface)]/85 backdrop-blur-md border-b border-[var(--border-subtle)]">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 xl:gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -30,14 +30,14 @@ export function AppShell() {
             <BrandLogo to="/dashboard" />
           </div>
 
-          <nav className="hidden lg:flex items-center gap-1 overflow-x-auto">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 min-w-0 overflow-x-auto">
             {TOP_NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
                   cn(
-                    'px-3 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap',
+                    'px-2 xl:px-2.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap',
                     isActive
                       ? 'bg-[var(--bg-pill-active)] text-[var(--text-pill-active)] shadow-[var(--shadow-pill)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)]',

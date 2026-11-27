@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  disambiguateChartLabels,
   formatCompactEur,
   formatPer90,
   formatRatio,
   formatRoiPercent,
+  formatShortClubName,
   formatSignedDelta,
 } from '../formatters';
 
@@ -27,5 +29,26 @@ describe('formatters', () => {
     expect(formatSignedDelta(0.41, 'en')).toBe('+0.41');
     expect(formatSignedDelta(-0.13, 'en')).toBe('-0.13');
     expect(formatSignedDelta(null, 'fr')).toBe('—');
+  });
+
+  it('shortens verbose club names cleanly without trailing punctuation', () => {
+    expect(formatShortClubName('Brighton & Hove Albion')).toBe('Brighton');
+    expect(formatShortClubName('Bayer 04 Leverkusen')).toBe('Leverkusen');
+    expect(formatShortClubName('Paris Saint-Germain')).toBe('PSG');
+    expect(formatShortClubName('Arsenal FC')).toBe('Arsenal');
+    expect(formatShortClubName('Spezia Calcio')).toBe('Spezia');
+  });
+
+  it('disambiguates duplicate chart shortLabels by season or index', () => {
+    const disambiguated = disambiguateChartLabels([
+      { shortLabel: 'Arsenal', season: 2023 },
+      { shortLabel: 'Arsenal', season: 2024 },
+      { shortLabel: 'Liverpool', season: 2024 },
+    ]);
+    expect(disambiguated.map((d) => d.shortLabel)).toEqual([
+      "Arsenal '23",
+      "Arsenal '24",
+      'Liverpool',
+    ]);
   });
 });

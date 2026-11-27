@@ -32,12 +32,12 @@ export function UserSessionMenu() {
   const userInitials = user ? (user.name || user.email).slice(0, 2).toUpperCase() : '';
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
       <button
         type="button"
         onClick={toggleDemoMode}
         className={cn(
-          'hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border transition-all cursor-pointer',
+          'hidden sm:inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold border transition-all cursor-pointer whitespace-nowrap shrink-0',
           isDemoMode
             ? 'bg-[var(--accent-secondary-soft)] text-[var(--accent-secondary)] border-[var(--accent-secondary)]/30'
             : healthQuery.isSuccess
@@ -112,8 +112,8 @@ export function UserSessionMenu() {
           </button>
         </div>
       ) : (
-        <Link to="/login">
-          <Button size="sm" variant="secondary">
+        <Link to="/login" className="shrink-0">
+          <Button size="sm" variant="secondary" className="whitespace-nowrap">
             {t('common.signIn')}
           </Button>
         </Link>

@@ -130,3 +130,82 @@ export function calculateAge(dob?: string): number | null {
   }
   return age >= 0 ? age : null;
 }
+
+const CLUB_SHORT_NAME_PATTERNS: Array<[RegExp, string]> = [
+  [/brighton/i, 'Brighton'],
+  [/bayer.*leverkusen/i, 'Leverkusen'],
+  [/paris saint-germain/i, 'PSG'],
+  [/atl[eé]tico.*madrid/i, 'Atlético'],
+  [/manchester city/i, 'Man City'],
+  [/manchester united/i, 'Man Utd'],
+  [/tottenham/i, 'Tottenham'],
+  [/wolverhampton/i, 'Wolves'],
+  [/nottingham forest/i, 'Nottm Forest'],
+  [/real sociedad/i, 'Real Sociedad'],
+  [/real betis/i, 'Real Betis'],
+  [/real madrid/i, 'Real Madrid'],
+  [/borussia dortmund/i, 'Dortmund'],
+  [/bayern munich|fc bayern/i, 'Bayern'],
+  [/fc barcelona|barcelona/i, 'Barcelona'],
+  [/inter milan|fc internazionale/i, 'Inter'],
+  [/ac milan/i, 'AC Milan'],
+  [/olympique.*marseille/i, 'Marseille'],
+  [/olympique.*lyon/i, 'Lyon'],
+  [/as monaco/i, 'Monaco'],
+  [/stade rennais/i, 'Rennes'],
+  [/rb leipzig/i, 'RB Leipzig'],
+  [/eintracht frankfurt/i, 'Frankfurt'],
+];
+
+/**
+ * Produces concise, readable club labels for narrow chart X-axes without trailing punctuation.
+ */
+export function formatShortClubName(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return '—';
+
+  for (const [pattern, shortName] of CLUB_SHORT_NAME_PATTERNS) {
+    if (pattern.test(trimmed)) {
+      return shortName;
+    }
+  }
+
+  let cleaned = trimmed;
+  if (cleaned.split(/\s+/).length > 1) {
+    cleaned = cleaned.replace(
+      /^(FC|CF|AC|AS|SC|SS|SV|VfB|VfL|UD|CD|CA|FK|SK|TSG|1\.\s*FC)\s+/i,
+      '',
+    );
+  }
+  if (cleaned.split(/\s+/).length > 1) {
+    cleaned = cleaned.replace(/\s+(FC|CF|SC|AC|Calcio|04|1899|HSC|United)$/i, '');
+  }
+  cleaned = cleaned.replace(/[&\s-]+$/g, '').trim() || trimmed;
+
+  return cleaned.length > 12 ? `${cleaned.slice(0, 11).trimEnd()}…` : cleaned;
+}
+
+/**
+ * Appends season (or index) suffixes when multiple chart items share the same short label.
+ */
+export function disambiguateChartLabels<T extends { shortLabel?: string; season?: number }>(
+  items: T[],
+): T[] {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    const key = item.shortLabel ?? '';
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  return items.map((item, idx) => {
+    const key = item.shortLabel ?? '';
+    if (!key || (counts.get(key) ?? 0) <= 1) {
+      return item;
+    }
+    const suffix = item.season ? `'${String(item.season).slice(-2)}` : `#${idx + 1}`;
+    return {
+      ...item,
+      shortLabel: `${key} ${suffix}`,
+    };
+  });
+}

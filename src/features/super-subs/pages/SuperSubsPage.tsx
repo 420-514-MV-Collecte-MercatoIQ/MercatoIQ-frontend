@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
-import { Card, CardHeader } from '../../../shared/components/ui/Card';
+import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { PageHeader } from '../../../shared/components/ui/PageHeader';
@@ -10,7 +10,6 @@ import { DataTable, type DataColumn } from '../../../shared/components/ui/DataTa
 import { Pagination } from '../../../shared/components/ui/Pagination';
 import { ApiErrorBanner } from '../../../shared/components/ui/StateFeedback';
 import { CapsuleComparisonChart } from '../../../shared/components/charts/CapsuleComparisonChart';
-import { StripedProgressBar } from '../../../shared/components/charts/StripedProgressBar';
 import {
   AnalyticsFilterBar,
   type AnalyticsFiltersState,
@@ -49,17 +48,6 @@ export function SuperSubsPage() {
   );
 
   const rows = query.data?.data ?? [];
-  const maxScore = Math.max(100, ...rows.map((r) => r.super_sub_score ?? 0));
-
-  const capsuleItems = rows.slice(0, 6).map((r) => ({
-    id: `${r.player_id}-${r.season}-${r.competition_id}`,
-    label: r.player_name,
-    subLabel: r.club_name || getCompetitionLabel(r.competition_id),
-    primaryValue: r.sub_goal_contributions_per_90,
-    secondaryValue: r.starter_goal_contributions_per_90,
-    primaryDisplay: formatPer90(r.sub_goal_contributions_per_90, lang),
-    secondaryDisplay: formatPer90(r.starter_goal_contributions_per_90, lang),
-  }));
 
   const columns: DataColumn<GoldSuperSubs>[] = [
     {
@@ -177,39 +165,6 @@ export function SuperSubsPage() {
       />
 
       {query.isError && <ApiErrorBanner error={query.error} onRetry={() => void query.refetch()} />}
-
-      {rows.length > 0 && (
-        <div className="grid xl:grid-cols-12 gap-5">
-          <Card className="xl:col-span-7">
-            <CardHeader
-              kicker="Q4 · BENCH VS STARTER"
-              title={t('superSubs.capsuleChartTitle')}
-              subtitle={t('superSubs.capsuleSubtitle')}
-            />
-            <CapsuleComparisonChart
-              items={capsuleItems}
-              primaryLegend={t('superSubs.columns.subPer90')}
-              secondaryLegend={t('superSubs.columns.starterPer90')}
-            />
-          </Card>
-
-          <Card className="xl:col-span-5">
-            <CardHeader kicker="RANKING" title={t('superSubs.leaderboardTitle')} />
-            <div className="space-y-4">
-              {rows.slice(0, 6).map((item) => (
-                <StripedProgressBar
-                  key={`${item.player_id}-${item.season}-${item.competition_id}`}
-                  label={item.player_name}
-                  valueLabel={formatPer90(item.super_sub_score, lang)}
-                  percentage={((item.super_sub_score ?? 0) / maxScore) * 100}
-                  tone="primary"
-                  subLabel={`${item.club_name || item.competition_id} · ${item.sub_minutes_played} min`}
-                />
-              ))}
-            </div>
-          </Card>
-        </div>
-      )}
 
       <LeagueChartsGrid
         kicker="Q4 · FIXED LEAGUE CHARTS"

@@ -2,10 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { FilterBar } from '../../../shared/components/ui/FilterBar';
 import { Input, Select } from '../../../shared/components/ui/Input';
 import {
-  COMPETITIONS,
-  DOMESTIC_COMPETITIONS,
   POSITIONS,
   SEASONS,
+  TOP_FIVE_LEAGUES,
 } from '../../../shared/types/constants';
 
 export interface AnalyticsFiltersState {
@@ -31,7 +30,7 @@ export function AnalyticsFilterBar({
   domesticOnly = false,
 }: AnalyticsFilterBarProps) {
   const { t } = useTranslation();
-  const leagues = domesticOnly ? DOMESTIC_COMPETITIONS : COMPETITIONS;
+  const leagues = TOP_FIVE_LEAGUES;
 
   const hasActive = Boolean(
     filters.season || filters.competition_id || filters.position || filters.club_id,
@@ -62,7 +61,7 @@ export function AnalyticsFilterBar({
         </Select>
       </div>
 
-      <div className="w-48">
+      <div className="w-52">
         <Select
           label={domesticOnly ? t('filters.domesticLeague') : t('filters.competition')}
           value={filters.competition_id ?? ''}

@@ -1,16 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import { Download } from 'lucide-react';
-import { Card, CardHeader } from '../../../shared/components/ui/Card';
+import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { PageHeader } from '../../../shared/components/ui/PageHeader';
@@ -18,7 +9,6 @@ import { DataTable, type DataColumn } from '../../../shared/components/ui/DataTa
 import { Pagination } from '../../../shared/components/ui/Pagination';
 import { ApiErrorBanner } from '../../../shared/components/ui/StateFeedback';
 import { StripedBarChart } from '../../../shared/components/charts/StripedBarChart';
-import { ChartTooltipCard } from '../../../shared/components/charts/ChartTooltip';
 import {
   AnalyticsFilterBar,
   type AnalyticsFiltersState,
@@ -30,9 +20,11 @@ import {
 import { LeagueChartsGrid } from '../../analytics/components/LeagueChartsGrid';
 import type { GoldClubTransferRoi } from '../../../shared/types/domain.types';
 import {
+  disambiguateChartLabels,
   formatCompactEur,
   formatPer90,
   formatRoiPercent,
+  formatShortClubName,
   normalizeRoiPercent,
 } from '../../../shared/utils/formatters';
 import { getCompetitionLabel } from '../../../shared/types/constants';
@@ -69,21 +61,6 @@ export function ClubRoiPage() {
     setFilters(next);
     resetPage();
   };
-
-  const roiBarData = rows.slice(0, 8).map((c) => ({
-    label: c.club_name,
-    shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
-    value: normalizeRoiPercent(c.roi) ?? 0,
-    displayValue: formatRoiPercent(c.roi, lang),
-    subLabel: `${getCompetitionLabel(c.competition_id)} · ${c.season}`,
-  }));
-
-  const spendVsGainData = rows.slice(0, 8).map((c) => ({
-    name: c.club_name.split(' ').slice(0, 2).join(' '),
-    fullName: c.club_name,
-    fees: Math.round((c.total_fees_paid_eur || 0) / 1_000_000),
-    gain: Math.round((c.total_value_gain_eur || 0) / 1_000_000),
-  }));
 
   const columns: DataColumn<GoldClubTransferRoi>[] = [
     {
@@ -208,64 +185,6 @@ export function ClubRoiPage() {
 
       {query.isError && <ApiErrorBanner error={query.error} onRetry={() => void query.refetch()} />}
 
-      {rows.length > 0 && (
-        <div className="grid xl:grid-cols-2 gap-5">
-          <Card>
-            <CardHeader kicker="Q1 · ROI" title={t('clubRoi.chartRoiTitle')} />
-            <StripedBarChart
-              data={roiBarData}
-              height={260}
-              valueLabel="ROI"
-              tickFormatter={(v) => `${v}%`}
-            />
-          </Card>
-
-          <Card>
-            <CardHeader kicker="Q1 · CAPITAL" title={t('clubRoi.chartFeesVsGainTitle')} />
-            <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={spendVsGainData} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grid-line)" />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                    tickFormatter={(v) => `€${v}M`}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (!active || !payload?.length) return null;
-                      const d = payload[0].payload as (typeof spendVsGainData)[number];
-                      return (
-                        <ChartTooltipCard
-                          title={d.fullName}
-                          rows={[
-                            { label: t('clubRoi.columns.feesPaid'), value: `€${d.fees}M` },
-                            {
-                              label: t('clubRoi.columns.valueGain'),
-                              value: `€${d.gain}M`,
-                              tone: d.gain >= 0 ? 'positive' : 'negative',
-                            },
-                          ]}
-                        />
-                      );
-                    }}
-                  />
-                  <Bar dataKey="fees" fill="var(--accent-secondary)" radius={[8, 8, 4, 4]} />
-                  <Bar dataKey="gain" fill="var(--accent-primary)" radius={[8, 8, 4, 4]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </div>
-      )}
-
       <LeagueChartsGrid
         kicker="Q1 · FIXED LEAGUE CHARTS"
         title={t('analytics.fixedLeagueRoiTitle')}
@@ -276,21 +195,24 @@ export function ClubRoiPage() {
         chartHeight={220}
         renderChart={(items) => (
           <StripedBarChart
-            data={items.map((c) => ({
-              label: c.club_name,
-              shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
-              value: normalizeRoiPercent(c.roi) ?? 0,
-              displayValue: formatRoiPercent(c.roi, lang),
-              subLabel: `${c.season}`,
-              extraRows: [
-                { label: t('clubRoi.columns.feesPaid'), value: formatCompactEur(c.total_fees_paid_eur, lang) },
-                {
-                  label: t('clubRoi.columns.valueGain'),
-                  value: formatCompactEur(c.total_value_gain_eur, lang),
-                  tone: c.total_value_gain_eur >= 0 ? 'positive' : 'negative',
-                },
-              ],
-            }))}
+            data={disambiguateChartLabels(
+              items.map((c) => ({
+                label: c.club_name,
+                shortLabel: formatShortClubName(c.club_name),
+                season: c.season,
+                value: normalizeRoiPercent(c.roi) ?? 0,
+                displayValue: formatRoiPercent(c.roi, lang),
+                subLabel: `${c.season}`,
+                extraRows: [
+                  { label: t('clubRoi.columns.feesPaid'), value: formatCompactEur(c.total_fees_paid_eur, lang) },
+                  {
+                    label: t('clubRoi.columns.valueGain'),
+                    value: formatCompactEur(c.total_value_gain_eur, lang),
+                    tone: c.total_value_gain_eur >= 0 ? 'positive' : 'negative',
+                  },
+                ],
+              })),
+            )}
             height={220}
             valueLabel="ROI"
             tickFormatter={(v) => `${v}%`}

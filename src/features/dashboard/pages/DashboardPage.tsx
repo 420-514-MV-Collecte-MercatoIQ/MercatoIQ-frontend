@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Activity,
   ArrowLeftRight,
-  ArrowUpRight,
   Clock,
   Trophy,
   Users,
@@ -14,28 +12,28 @@ import { StatCard } from '../../../shared/components/ui/StatCard';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { PageHeader } from '../../../shared/components/ui/PageHeader';
 import { ApiErrorBanner } from '../../../shared/components/ui/StateFeedback';
-import { ChartCardSkeleton, KpiGridSkeleton } from '../../../shared/components/ui/Loaders';
+import { KpiGridSkeleton } from '../../../shared/components/ui/Loaders';
 import { StripedBarChart } from '../../../shared/components/charts/StripedBarChart';
 import { StripedProgressBar } from '../../../shared/components/charts/StripedProgressBar';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 import {
+  disambiguateChartLabels,
   formatCompactEur,
   formatCompactNumber,
   formatDate,
   formatPer90,
   formatRatio,
   formatRoiPercent,
+  formatShortClubName,
   formatSignedDelta,
   normalizeRoiPercent,
 } from '../../../shared/utils/formatters';
-import { getCompetitionLabel } from '../../../shared/types/constants';
 import {
   AnalyticsFilterBar,
   type AnalyticsFiltersState,
 } from '../../analytics/components/AnalyticsFilterBar';
 import {
   useClubRoiByLeagueQueries,
-  useClubRoiQuery,
   useKpisQuery,
   useScoutingU23Query,
   useSuperSubsQuery,
@@ -52,7 +50,6 @@ export function DashboardPage() {
   const [filters, setFilters] = useState<AnalyticsFiltersState>({});
 
   const kpisQuery = useKpisQuery(filters);
-  const clubRoiQuery = useClubRoiQuery({ ...filters, page: 1, limit: 6 });
   const clubRoiByLeague = useClubRoiByLeagueQueries(
     { season: filters.season, club_id: filters.club_id },
     5,
@@ -61,28 +58,20 @@ export function DashboardPage() {
   const superSubsQuery = useSuperSubsQuery({ ...filters, page: 1, limit: 4 });
 
   const kpis = kpisQuery.data;
-  const roiRows = clubRoiQuery.data?.data ?? [];
   const scoutingRows = scoutingQuery.data?.data ?? [];
   const subRows = superSubsQuery.data?.data ?? [];
 
-  const roiChartData = roiRows.map((c) => ({
-    label: c.club_name,
-    shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
-    value: normalizeRoiPercent(c.roi) ?? 0,
-    displayValue: formatRoiPercent(c.roi, lang),
-    subLabel: `${getCompetitionLabel(c.competition_id)} · ${c.season}`,
-    extraRows: [
-      { label: t('dashboard.feesPaid'), value: formatCompactEur(c.total_fees_paid_eur, lang) },
-      {
-        label: t('dashboard.valueGain'),
-        value: formatCompactEur(c.total_value_gain_eur, lang),
-        tone: (c.total_value_gain_eur >= 0 ? 'positive' : 'negative') as 'positive' | 'negative',
-      },
-    ],
-  }));
-
-  const totalFeesSample = roiRows.reduce((acc, r) => acc + (r.total_fees_paid_eur || 0), 0);
-  const totalGainSample = roiRows.reduce((acc, r) => acc + (r.total_value_gain_eur || 0), 0);
+  const visibleLeagueRoiRows = clubRoiByLeague.flatMap((entry) =>
+    !filters.competition_id || entry.league.id === filters.competition_id ? entry.data : [],
+  );
+  const totalFeesSample = visibleLeagueRoiRows.reduce(
+    (acc, r) => acc + (r.total_fees_paid_eur || 0),
+    0,
+  );
+  const totalGainSample = visibleLeagueRoiRows.reduce(
+    (acc, r) => acc + (r.total_value_gain_eur || 0),
+    0,
+  );
   const avgUndervalue =
     scoutingRows.length > 0
       ? scoutingRows.reduce((acc, r) => acc + r.undervalue_ratio, 0) / scoutingRows.length
@@ -151,44 +140,49 @@ export function DashboardPage() {
         </div>
       )}
 
-      <div className="grid xl:grid-cols-12 gap-5">
-        <Card className="xl:col-span-8 flex flex-col justify-between gap-5">
-          <div>
-            <CardHeader
-              kicker="Q1 · GOLD ANALYTICS"
-              title={t('dashboard.roiChartTitle')}
-              subtitle={t('dashboard.roiChartSubtitle')}
-              action={
-                <Link
-                  to="/club-roi"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--accent-primary)] hover:underline"
-                >
-                  {t('dashboard.exploreAll')}
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </Link>
-              }
-            />
-
-            {clubRoiQuery.isLoading ? (
-              <ChartCardSkeleton height={280} />
-            ) : roiChartData.length > 0 ? (
-              <StripedBarChart
-                data={roiChartData}
-                height={280}
-                valueLabel={t('dashboard.roiRatio')}
-                tickFormatter={(v) => `${v}%`}
-              />
-            ) : (
-              <div className="h-56 flex items-center justify-center text-sm text-[var(--text-muted)]">
-                {t('common.noData')}
-              </div>
+      <LeagueChartsGrid
+        kicker="TOP 5 · FIXED LEAGUE CHARTS"
+        title={t('analytics.fixedLeagueRoiTitle')}
+        subtitle={t('analytics.fixedLeagueRoiSubtitle')}
+        series={clubRoiByLeague}
+        selectedLeague={filters.competition_id}
+        onSelectLeague={(competition_id) => setFilters((prev) => ({ ...prev, competition_id }))}
+        chartHeight={210}
+        renderChart={(items) => (
+          <StripedBarChart
+            data={disambiguateChartLabels(
+              items.map((c) => ({
+                label: c.club_name,
+                shortLabel: formatShortClubName(c.club_name),
+                season: c.season,
+                value: normalizeRoiPercent(c.roi) ?? 0,
+                displayValue: formatRoiPercent(c.roi, lang),
+                subLabel: `${c.season}`,
+                extraRows: [
+                  { label: t('dashboard.feesPaid'), value: formatCompactEur(c.total_fees_paid_eur, lang) },
+                  {
+                    label: t('dashboard.valueGain'),
+                    value: formatCompactEur(c.total_value_gain_eur, lang),
+                    tone: (c.total_value_gain_eur >= 0 ? 'positive' : 'negative') as
+                      | 'positive'
+                      | 'negative',
+                  },
+                ],
+              })),
             )}
-          </div>
+            height={210}
+            valueLabel="ROI"
+            tickFormatter={(v) => `${v}%`}
+          />
+        )}
+      />
 
+      <div className="grid xl:grid-cols-12 gap-5">
+        <Card className="xl:col-span-7 flex flex-col justify-center">
           <ExplorerCommandBar />
         </Card>
 
-        <Card className="xl:col-span-4 flex flex-col justify-between gap-6">
+        <Card className="xl:col-span-5 flex flex-col justify-between gap-6">
           <div>
             <CardHeader
               kicker="SNAPSHOT"
@@ -234,30 +228,6 @@ export function DashboardPage() {
           </div>
         </Card>
       </div>
-
-      <LeagueChartsGrid
-        kicker="TOP 5 · FIXED LEAGUE CHARTS"
-        title={t('analytics.fixedLeagueRoiTitle')}
-        subtitle={t('analytics.fixedLeagueRoiSubtitle')}
-        series={clubRoiByLeague}
-        selectedLeague={filters.competition_id}
-        onSelectLeague={(competition_id) => setFilters((prev) => ({ ...prev, competition_id }))}
-        chartHeight={210}
-        renderChart={(items) => (
-          <StripedBarChart
-            data={items.map((c) => ({
-              label: c.club_name,
-              shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
-              value: normalizeRoiPercent(c.roi) ?? 0,
-              displayValue: formatRoiPercent(c.roi, lang),
-              subLabel: `${c.season}`,
-            }))}
-            height={210}
-            valueLabel="ROI"
-            tickFormatter={(v) => `${v}%`}
-          />
-        )}
-      />
 
       <DashboardPreviewCards
         scoutingRows={scoutingRows}
