@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, User, X } from 'lucide-react';
 import { useAuth } from '../../../features/auth/context/AuthContext';
 import { cn } from '../../utils/formatters';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { BrandLogo } from './BrandLogo';
 import { Footer } from './Footer';
 import { UserSessionMenu } from './UserSessionMenu';
@@ -12,6 +13,7 @@ import { APP_NAV_ITEMS, TOP_NAV_ITEMS } from './navigationConfig';
 export function AppShell() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -125,7 +127,9 @@ export function AppShell() {
         </aside>
 
         <main className="flex-1 min-w-0">
-          <Outlet />
+          <ErrorBoundary variant="section" resetKeys={[location.pathname]}>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
 

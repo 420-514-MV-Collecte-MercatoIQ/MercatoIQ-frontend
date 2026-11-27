@@ -6,6 +6,7 @@ import { Spinner } from '../../../shared/components/ui/Loaders';
 import { useToast } from '../../../shared/context/ToastContext';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 import { cn } from '../../../shared/utils/formatters';
+import { isValidEmail } from '../../../shared/utils/validation';
 import { AuthLayout } from '../components/AuthLayout';
 import { GoogleAuthButton } from '../components/GoogleAuthButton';
 import { PasswordField } from '../components/PasswordField';
@@ -31,9 +32,10 @@ export function RegisterPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setErrorMsg(null);
 
-    if (!email.includes('@')) {
+    if (!isValidEmail(email)) {
       setErrorMsg(t('auth.invalidEmail'));
       return;
     }
@@ -79,12 +81,15 @@ export function RegisterPage() {
       }
     >
       {errorMsg && (
-        <div className="rounded-lg px-3.5 py-2.5 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)] border border-[var(--accent-negative)]/30">
+        <div
+          role="alert"
+          className="rounded-lg px-3.5 py-2.5 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)] border border-[var(--accent-negative)]/30"
+        >
           {errorMsg}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <div className="space-y-1.5">
           <label
             htmlFor="register-email"

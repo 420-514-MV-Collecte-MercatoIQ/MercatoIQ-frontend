@@ -30,6 +30,11 @@ export function SystemPage() {
   });
 
   const handleTriggerPipeline = async () => {
+    if (pipelineLoading) return;
+    if (isDemoMode) {
+      showToast(t('errors.demoPipelineNotice'), 'info');
+      return;
+    }
     setPipelineLoading(true);
     try {
       await httpClient.post('/admin/pipeline/trigger');
@@ -99,6 +104,15 @@ export function SystemPage() {
           >
             {t('system.checkNow')}
           </Button>
+
+          {healthQuery.isError && (
+            <div
+              role="alert"
+              className="rounded-2xl px-3.5 py-2.5 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)] border border-[var(--accent-negative)]/30"
+            >
+              {getApiErrorMessage(healthQuery.error, t('common.apiOfflineTitle'))}
+            </div>
+          )}
         </Card>
 
         {/* Data Source Mode + RBAC Admin Panel */}

@@ -32,7 +32,7 @@ export function Pagination({ meta, onPageChange, onLimitChange }: PaginationProp
             <select
               value={meta.limit}
               onChange={(e) => onLimitChange(Number(e.target.value))}
-              className="h-7 rounded-full px-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] cursor-pointer"
+              className="h-7 rounded-full px-2.5 py-0 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-xs leading-[26px] font-medium text-[var(--text-primary)] cursor-pointer focus:outline-none focus:border-[var(--accent-primary)]"
             >
               {PAGE_SIZE_OPTIONS.map((size) => (
                 <option key={size} value={size}>

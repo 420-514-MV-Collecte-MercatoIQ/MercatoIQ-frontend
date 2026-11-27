@@ -19,7 +19,7 @@ export function Input({ label, error, hint, className, id, ...rest }: InputProps
       <input
         id={inputId}
         className={cn(
-          'h-10 w-full rounded-2xl px-3.5 text-sm bg-[var(--bg-surface-elevated)] text-[var(--text-primary)]',
+          'h-10 w-full rounded-2xl px-3.5 py-2 text-sm leading-[22px] bg-[var(--bg-surface-elevated)] text-[var(--text-primary)]',
           'border border-[var(--border-subtle)] placeholder:text-[var(--text-muted)]',
           'focus:outline-none focus:border-[var(--accent-primary)] transition-colors',
           error && 'border-[var(--accent-negative)]',
@@ -50,7 +50,7 @@ export function Select({ label, error, className, id, children, ...rest }: Selec
       <select
         id={selectId}
         className={cn(
-          'h-10 w-full rounded-2xl px-3.5 text-sm bg-[var(--bg-surface-elevated)] text-[var(--text-primary)]',
+          'h-10 w-full rounded-2xl px-3.5 py-2 text-sm leading-[22px] bg-[var(--bg-surface-elevated)] text-[var(--text-primary)]',
           'border border-[var(--border-subtle)] cursor-pointer',
           'focus:outline-none focus:border-[var(--accent-primary)] transition-colors',
           error && 'border-[var(--accent-negative)]',

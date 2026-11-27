@@ -145,20 +145,24 @@ export function UclVsDomesticPage() {
   ];
 
   const handleExport = () => {
-    exportToCsv(
-      'mercatoiq-ucl-vs-domestic',
-      ['Player ID', 'Player', 'Club', 'Domestic League', 'UCL G/90', 'Domestic G/90', 'Goals/90 Delta'],
-      rows.map((r) => [
-        r.player_id,
-        r.player_name,
-        r.club_name,
-        r.domestic_competition_id,
-        r.ucl_goals_per_90,
-        r.domestic_goals_per_90,
-        r.goals_per_90_delta,
-      ]),
-    );
-    showToast(t('common.exportedSuccess'), 'success');
+    try {
+      exportToCsv(
+        'mercatoiq-ucl-vs-domestic',
+        ['Player ID', 'Player', 'Club', 'Domestic League', 'UCL G/90', 'Domestic G/90', 'Goals/90 Delta'],
+        rows.map((r) => [
+          r.player_id,
+          r.player_name,
+          r.club_name,
+          r.domestic_competition_id,
+          r.ucl_goals_per_90,
+          r.domestic_goals_per_90,
+          r.goals_per_90_delta,
+        ]),
+      );
+      showToast(t('common.exportedSuccess'), 'success');
+    } catch {
+      showToast(t('errors.exportFailed'), 'error');
+    }
   };
 
   return (
@@ -203,12 +207,13 @@ export function UclVsDomesticPage() {
         renderChart={(items) => {
           const pts = disambiguateChartLabels(
             items.map((r) => {
-              const rawLast = r.player_name.split(' ').slice(-1)[0] || r.player_name;
+              const safeName = (r.player_name || '').trim() || `#${r.player_id}`;
+              const rawLast = safeName.split(' ').slice(-1)[0] || safeName;
               const shortLabel = rawLast.length > 10 ? `${rawLast.slice(0, 9).trimEnd()}…` : rawLast;
               return {
                 shortLabel,
                 season: r.season,
-                fullName: r.player_name,
+                fullName: safeName,
                 club: r.club_name || getCompetitionLabel(r.domestic_competition_id),
                 delta: r.goals_per_90_delta ?? 0,
                 uclG90: r.ucl_goals_per_90 ?? 0,
@@ -280,6 +285,7 @@ export function UclVsDomesticPage() {
           data={rows}
           rowKey={(r) => `${r.player_id}-${r.season}`}
           isLoading={query.isLoading}
+          isError={query.isError}
         />
         <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />
       </Card>

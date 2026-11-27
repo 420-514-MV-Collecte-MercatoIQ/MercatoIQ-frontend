@@ -10,7 +10,7 @@ function resolveLocale(lang?: string): string {
 }
 
 export function formatEur(value: number | null | undefined, lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   return new Intl.NumberFormat(resolveLocale(lang), {
     style: 'currency',
     currency: 'EUR',
@@ -19,7 +19,7 @@ export function formatEur(value: number | null | undefined, lang = 'en'): string
 }
 
 export function formatCompactEur(value: number | null | undefined, lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   const abs = Math.abs(value);
   const sign = value < 0 ? '-' : '';
   const locale = resolveLocale(lang);
@@ -43,7 +43,7 @@ export function formatCompactEur(value: number | null | undefined, lang = 'en'):
 }
 
 export function formatCompactNumber(value: number | null | undefined, lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   return new Intl.NumberFormat(resolveLocale(lang), {
     notation: 'compact',
     maximumFractionDigits: 1,
@@ -51,7 +51,7 @@ export function formatCompactNumber(value: number | null | undefined, lang = 'en
 }
 
 export function formatInteger(value: number | null | undefined, lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   return new Intl.NumberFormat(resolveLocale(lang)).format(Math.round(value));
 }
 
@@ -60,7 +60,7 @@ export function formatInteger(value: number | null | undefined, lang = 'en'): st
  * or already as a percentage.
  */
 export function normalizeRoiPercent(value: number | null | undefined): number | null {
-  if (value === null || value === undefined || Number.isNaN(value)) return null;
+  if (value === null || value === undefined || !Number.isFinite(value)) return null;
   const pct = Math.abs(value) <= 10 ? value * 100 : value;
   return Math.round(pct * 10) / 10;
 }
@@ -76,7 +76,7 @@ export function formatRoiPercent(value: number | null | undefined, lang = 'en'):
 }
 
 export function formatRatio(value: number | null | undefined, suffix = 'x', lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   return `${value.toLocaleString(resolveLocale(lang), {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -84,7 +84,7 @@ export function formatRatio(value: number | null | undefined, suffix = 'x', lang
 }
 
 export function formatPer90(value: number | null | undefined, lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   return value.toLocaleString(resolveLocale(lang), {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -92,7 +92,7 @@ export function formatPer90(value: number | null | undefined, lang = 'en'): stri
 }
 
 export function formatSignedDelta(value: number | null | undefined, lang = 'en'): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   const sign = value > 0 ? '+' : '';
   return `${sign}${value.toLocaleString(resolveLocale(lang), {
     minimumFractionDigits: 2,
@@ -160,8 +160,8 @@ const CLUB_SHORT_NAME_PATTERNS: Array<[RegExp, string]> = [
 /**
  * Produces concise, readable club labels for narrow chart X-axes without trailing punctuation.
  */
-export function formatShortClubName(name: string): string {
-  const trimmed = name.trim();
+export function formatShortClubName(name: string | null | undefined): string {
+  const trimmed = (name ?? '').trim();
   if (!trimmed) return '—';
 
   for (const [pattern, shortName] of CLUB_SHORT_NAME_PATTERNS) {
@@ -202,6 +202,7 @@ export function deduplicateByKey<T>(items: T[], getKey: (item: T) => string | nu
  * Formats large ROI axis percentages compactly (e.g. 1200% -> 1.2k%).
  */
 export function formatCompactRoiTick(val: number): string {
+  if (!Number.isFinite(val)) return '—';
   return Math.abs(val) >= 1000 ? `${(val / 1000).toFixed(1)}k%` : `${val}%`;
 }
 

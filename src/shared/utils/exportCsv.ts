@@ -15,6 +15,9 @@ export function exportToCsv(
   headers: string[],
   rows: Array<Array<string | number | null | undefined>>,
 ): void {
+  if (!Array.isArray(headers) || headers.length === 0) {
+    throw new Error('No columns provided for CSV export.');
+  }
   const lines = [
     headers.map(escapeCsvCell).join(','),
     ...rows.map((row) => row.map(escapeCsvCell).join(',')),
@@ -24,10 +27,15 @@ export function exportToCsv(
   });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href = url;
-  link.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  try {
+    link.href = url;
+    link.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
+    document.body.appendChild(link);
+    link.click();
+  } finally {
+    if (link.parentNode) {
+      link.parentNode.removeChild(link);
+    }
+    URL.revokeObjectURL(url);
+  }
 }

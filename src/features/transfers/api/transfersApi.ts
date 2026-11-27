@@ -1,4 +1,9 @@
-import { AppApiError, httpClient } from '../../../shared/api/httpClient';
+import {
+  AppApiError,
+  assertObjectPayload,
+  assertPaginatedPayload,
+  httpClient,
+} from '../../../shared/api/httpClient';
 import { cleanQueryParams } from '../../../shared/api/queryParams';
 import { isDemoModeActive } from '../../../shared/context/DemoModeContext';
 import { demoDataService } from '../../../shared/mocks/demoData';
@@ -19,7 +24,7 @@ export async function getTransfers(
   const { data } = await httpClient.get<PaginatedResponse<SilverTransfer>>('/transfers', {
     params: cleanQueryParams(query),
   });
-  return data;
+  return assertPaginatedPayload<SilverTransfer>(data, '/transfers');
 }
 
 export async function getTransferById(id: string): Promise<SilverTransfer> {
@@ -31,7 +36,7 @@ export async function getTransferById(id: string): Promise<SilverTransfer> {
     return found;
   }
   const { data } = await httpClient.get<SilverTransfer>(`/transfers/${id}`);
-  return data;
+  return assertObjectPayload<SilverTransfer>(data, `/transfers/${id}`);
 }
 
 export async function createTransfer(payload: CreateTransferPayload): Promise<SilverTransfer> {
@@ -39,7 +44,7 @@ export async function createTransfer(payload: CreateTransferPayload): Promise<Si
     return demoDataService.createTransfer(payload);
   }
   const { data } = await httpClient.post<SilverTransfer>('/transfers', payload);
-  return data;
+  return assertObjectPayload<SilverTransfer>(data, '/transfers');
 }
 
 export async function updateTransfer(
@@ -54,7 +59,7 @@ export async function updateTransfer(
     return updated;
   }
   const { data } = await httpClient.patch<SilverTransfer>(`/transfers/${id}`, payload);
-  return data;
+  return assertObjectPayload<SilverTransfer>(data, `/transfers/${id}`);
 }
 
 export async function deleteTransfer(id: string): Promise<{ deleted: boolean; id: string }> {
@@ -62,5 +67,5 @@ export async function deleteTransfer(id: string): Promise<{ deleted: boolean; id
     return demoDataService.removeTransfer(id);
   }
   const { data } = await httpClient.delete<{ deleted: boolean; id: string }>(`/transfers/${id}`);
-  return data;
+  return assertObjectPayload<{ deleted: boolean; id: string }>(data, `/transfers/${id}`);
 }

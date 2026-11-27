@@ -7,6 +7,7 @@ import { useDemoMode } from '../../../shared/context/DemoModeContext';
 import { useToast } from '../../../shared/context/ToastContext';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 import { cn } from '../../../shared/utils/formatters';
+import { isValidEmail } from '../../../shared/utils/validation';
 import { AuthLayout } from '../components/AuthLayout';
 import { ForgotPasswordModal } from '../components/ForgotPasswordModal';
 import { GoogleAuthButton } from '../components/GoogleAuthButton';
@@ -35,9 +36,10 @@ export function LoginPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setErrorMsg(null);
 
-    if (!email.includes('@')) {
+    if (!isValidEmail(email)) {
       setErrorMsg(t('auth.invalidEmail'));
       return;
     }

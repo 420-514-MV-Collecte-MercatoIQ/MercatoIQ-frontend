@@ -1,10 +1,23 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { getApiErrorMessage } from '../../../shared/api/httpClient';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { Button } from '../../../shared/components/ui/Button';
+import { ErrorBoundary } from '../../../shared/components/ui/ErrorBoundary';
 import { ChartCardSkeleton } from '../../../shared/components/ui/Loaders';
 import type { LeagueSeriesResult } from '../hooks/useAnalyticsQueries';
+
+interface LeagueChartSlotProps<T> {
+  items: T[];
+  leagueId: string;
+  renderChart: (items: T[], leagueId: string) => ReactNode;
+}
+
+function LeagueChartSlot<T>({ items, leagueId, renderChart }: LeagueChartSlotProps<T>) {
+  return <>{renderChart(items, leagueId)}</>;
+}
 
 interface LeagueChartsGridProps<T> {
   kicker: string;
@@ -79,7 +92,7 @@ export function LeagueChartsGrid<T>({
         </Card>
       ) : (
         <div className={gridClass}>
-          {visibleSeries.map(({ league, data, isLoading }) => (
+          {visibleSeries.map(({ league, data, isLoading, isError, error, refetch }) => (
             <Card key={league.id} className="flex flex-col">
               <CardHeader
                 kicker={`${league.id} · ${t(`countries.${league.country}`, { defaultValue: league.country }).toUpperCase()}`}
@@ -103,8 +116,36 @@ export function LeagueChartsGrid<T>({
 
               {isLoading ? (
                 <ChartCardSkeleton height={chartHeight} />
+              ) : isError ? (
+                <div
+                  role="alert"
+                  style={{ minHeight: chartHeight }}
+                  className="flex flex-col items-center justify-center text-center px-4 py-6 rounded-2xl border border-[var(--accent-negative)]/30 bg-[var(--accent-negative-soft)]/20 space-y-2.5"
+                >
+                  <AlertTriangle className="h-5 w-5 text-[var(--accent-negative)]" />
+                  <p className="text-xs font-semibold text-[var(--text-primary)]">
+                    {t('errors.chartLoadFailed')}
+                  </p>
+                  {Boolean(error) && (
+                    <p className="text-[11px] text-[var(--text-secondary)] max-w-xs line-clamp-2">
+                      {getApiErrorMessage(error, '')}
+                    </p>
+                  )}
+                  {refetch && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+                      onClick={refetch}
+                    >
+                      {t('common.retry')}
+                    </Button>
+                  )}
+                </div>
               ) : data.length > 0 ? (
-                renderChart(data, league.id)
+                <ErrorBoundary variant="section" resetKeys={[league.id, data.length]}>
+                  <LeagueChartSlot items={data} leagueId={league.id} renderChart={renderChart} />
+                </ErrorBoundary>
               ) : (
                 <div
                   style={{ height: chartHeight }}

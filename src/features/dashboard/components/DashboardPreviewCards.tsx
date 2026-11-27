@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowUpRight } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, RefreshCw } from 'lucide-react';
+import { getApiErrorMessage } from '../../../shared/api/httpClient';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { Button } from '../../../shared/components/ui/Button';
 import { LoadingSkeleton } from '../../../shared/components/ui/StateFeedback';
 import type {
   GoldSuperSubs,
@@ -17,15 +19,23 @@ import {
 interface DashboardPreviewCardsProps {
   scoutingRows: GoldUndervaluedScouting[];
   scoutingLoading: boolean;
+  scoutingError?: unknown;
+  onRetryScouting?: () => void;
   superSubRows: GoldSuperSubs[];
   superSubLoading: boolean;
+  superSubError?: unknown;
+  onRetrySuperSubs?: () => void;
 }
 
 export function DashboardPreviewCards({
   scoutingRows,
   scoutingLoading,
+  scoutingError,
+  onRetryScouting,
   superSubRows,
   superSubLoading,
+  superSubError,
+  onRetrySuperSubs,
 }: DashboardPreviewCardsProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
@@ -48,6 +58,37 @@ export function DashboardPreviewCards({
         />
         {scoutingLoading ? (
           <LoadingSkeleton rows={4} />
+        ) : scoutingError ? (
+          <div
+            role="alert"
+            className="rounded-2xl p-4 border border-[var(--accent-negative)]/30 bg-[var(--accent-negative-soft)]/20 flex items-center justify-between gap-3"
+          >
+            <div className="flex items-start gap-2.5 min-w-0">
+              <AlertTriangle className="h-4 w-4 text-[var(--accent-negative)] shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[var(--text-primary)]">
+                  {t('errors.previewLoadError')}
+                </p>
+                <p className="text-[11px] text-[var(--text-secondary)] truncate">
+                  {getApiErrorMessage(scoutingError, t('common.apiOfflineTitle'))}
+                </p>
+              </div>
+            </div>
+            {onRetryScouting && (
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+                onClick={onRetryScouting}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+          </div>
+        ) : scoutingRows.length === 0 ? (
+          <div className="py-10 text-center text-xs text-[var(--text-muted)]">
+            {t('common.noData')}
+          </div>
         ) : (
           <div className="space-y-2.5">
             {scoutingRows.map((p) => (
@@ -99,6 +140,37 @@ export function DashboardPreviewCards({
         />
         {superSubLoading ? (
           <LoadingSkeleton rows={4} />
+        ) : superSubError ? (
+          <div
+            role="alert"
+            className="rounded-2xl p-4 border border-[var(--accent-negative)]/30 bg-[var(--accent-negative-soft)]/20 flex items-center justify-between gap-3"
+          >
+            <div className="flex items-start gap-2.5 min-w-0">
+              <AlertTriangle className="h-4 w-4 text-[var(--accent-negative)] shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[var(--text-primary)]">
+                  {t('errors.previewLoadError')}
+                </p>
+                <p className="text-[11px] text-[var(--text-secondary)] truncate">
+                  {getApiErrorMessage(superSubError, t('common.apiOfflineTitle'))}
+                </p>
+              </div>
+            </div>
+            {onRetrySuperSubs && (
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+                onClick={onRetrySuperSubs}
+              >
+                {t('common.retry')}
+              </Button>
+            )}
+          </div>
+        ) : superSubRows.length === 0 ? (
+          <div className="py-10 text-center text-xs text-[var(--text-muted)]">
+            {t('common.noData')}
+          </div>
         ) : (
           <div className="space-y-2.5">
             {superSubRows.map((s) => (

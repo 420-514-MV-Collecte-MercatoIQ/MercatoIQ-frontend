@@ -239,8 +239,12 @@ export function DashboardPage() {
       <DashboardPreviewCards
         scoutingRows={scoutingRows}
         scoutingLoading={scoutingQuery.isLoading}
+        scoutingError={scoutingQuery.isError ? scoutingQuery.error : null}
+        onRetryScouting={() => void scoutingQuery.refetch()}
         superSubRows={subRows}
         superSubLoading={superSubsQuery.isLoading}
+        superSubError={superSubsQuery.isError ? superSubsQuery.error : null}
+        onRetrySuperSubs={() => void superSubsQuery.refetch()}
       />
     </div>
   );

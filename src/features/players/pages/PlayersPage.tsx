@@ -21,6 +21,7 @@ import { POSITIONS } from '../../../shared/types/constants';
 import type { SilverPlayer } from '../../../shared/types/domain.types';
 import { exportToCsv } from '../../../shared/utils/exportCsv';
 import { formatCompactEur } from '../../../shared/utils/formatters';
+import { parsePositiveInt } from '../../../shared/utils/validation';
 import { PlayerFormModal } from '../components/PlayerFormModal';
 import {
   useDeletePlayerMutation,
@@ -54,7 +55,7 @@ export function PlayersPage() {
     name: debouncedName || undefined,
     position: position || undefined,
     nationality: nationality || undefined,
-    club_id: clubId ? Number(clubId) : undefined,
+    club_id: parsePositiveInt(clubId),
     page,
     limit,
   });
@@ -69,25 +70,29 @@ export function PlayersPage() {
       showToast(t('players.deletedSuccess'), 'success');
       setDeletingPlayer(null);
     } catch (err) {
-      showToast(getApiErrorMessage(err, 'Delete failed'), 'error');
+      showToast(getApiErrorMessage(err, t('errors.deleteFailed')), 'error');
     }
   };
 
   const handleExport = () => {
-    exportToCsv(
-      'mercatoiq-players',
-      ['Player ID', 'Name', 'Nationality', 'Position', 'Current Club', 'Market Value EUR', 'Peak Value EUR'],
-      players.map((p) => [
-        p.player_id,
-        p.player_name,
-        p.nationality,
-        p.position,
-        p.current_club?.club_name,
-        p.current_market_value_eur,
-        p.highest_market_value_eur,
-      ]),
-    );
-    showToast(t('common.exportedSuccess'), 'success');
+    try {
+      exportToCsv(
+        'mercatoiq-players',
+        ['Player ID', 'Name', 'Nationality', 'Position', 'Current Club', 'Market Value EUR', 'Peak Value EUR'],
+        players.map((p) => [
+          p.player_id,
+          p.player_name,
+          p.nationality,
+          p.position,
+          p.current_club?.club_name,
+          p.current_market_value_eur,
+          p.highest_market_value_eur,
+        ]),
+      );
+      showToast(t('common.exportedSuccess'), 'success');
+    } catch {
+      showToast(t('errors.exportFailed'), 'error');
+    }
   };
 
   const hasActiveFilters = Boolean(nameInput || position || nationality || clubId);
@@ -286,6 +291,7 @@ export function PlayersPage() {
           data={players}
           rowKey={(p) => p.player_id}
           isLoading={query.isLoading}
+          isError={query.isError}
           onRowClick={(p) => navigate(`/players/${p.player_id}`)}
         />
         <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />

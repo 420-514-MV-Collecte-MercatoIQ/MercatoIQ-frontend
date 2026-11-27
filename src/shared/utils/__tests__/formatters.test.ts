@@ -10,11 +10,14 @@ import {
 } from '../formatters';
 
 describe('formatters', () => {
-  it('formats compact EUR values and handles nullish inputs safely', () => {
+  it('formats compact EUR values and handles nullish and non-finite inputs safely', () => {
     expect(formatCompactEur(180_000_000, 'en')).toBe('€180M');
     expect(formatCompactEur(-32_000_000, 'en')).toBe('-€32M');
     expect(formatCompactEur(null, 'en')).toBe('—');
     expect(formatCompactEur(undefined, 'fr')).toBe('—');
+    expect(formatCompactEur(Number.POSITIVE_INFINITY, 'en')).toBe('—');
+    expect(formatCompactEur(Number.NaN, 'en')).toBe('—');
+    expect(formatShortClubName(null)).toBe('—');
   });
 
   it('formats ROI ratios and percentages with sign', () => {

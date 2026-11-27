@@ -12,6 +12,11 @@ import {
   toUpdatePlayerPayload,
   type PlayerFormValues,
 } from '../../../shared/utils/payloadMappers';
+import {
+  parseIntInRange,
+  parseNonNegativeNumber,
+  parsePositiveInt,
+} from '../../../shared/utils/validation';
 import { useCreatePlayerMutation, useUpdatePlayerMutation } from '../hooks/usePlayersQueries';
 import { useToast } from '../../../shared/context/ToastContext';
 import { getApiErrorMessage } from '../../../shared/api/httpClient';
@@ -91,6 +96,7 @@ export function PlayerFormModal({ open, onClose, editingPlayer }: PlayerFormModa
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setErrorMsg(null);
 
     if (!values.player_id.trim() || !values.player_name.trim()) {
@@ -98,10 +104,45 @@ export function PlayerFormModal({ open, onClose, editingPlayer }: PlayerFormModa
       return;
     }
 
+    if (parsePositiveInt(values.player_id) === undefined) {
+      setErrorMsg(t('players.form.invalidPlayerId'));
+      return;
+    }
+
     const hasClubId = Boolean(values.club_id.trim());
     const hasClubName = Boolean(values.club_name.trim());
     if (hasClubId !== hasClubName) {
       setErrorMsg(t('players.form.clubPairError'));
+      return;
+    }
+    if (hasClubId && parsePositiveInt(values.club_id) === undefined) {
+      setErrorMsg(t('players.form.invalidClubId'));
+      return;
+    }
+
+    if (values.height_cm.trim() && parseIntInRange(values.height_cm, 100, 250) === undefined) {
+      setErrorMsg(t('players.form.invalidHeight'));
+      return;
+    }
+
+    if (
+      (values.current_market_value_eur.trim() &&
+        parseNonNegativeNumber(values.current_market_value_eur) === undefined) ||
+      (values.highest_market_value_eur.trim() &&
+        parseNonNegativeNumber(values.highest_market_value_eur) === undefined)
+    ) {
+      setErrorMsg(t('players.form.negativeValue'));
+      return;
+    }
+
+    const hasBadValuationRow = values.market_valuations.some((row) => {
+      const hasDate = row.date.trim().length > 0;
+      const hasAmount = row.market_value_eur.trim().length > 0;
+      if (!hasDate && !hasAmount) return false;
+      return !hasDate || !hasAmount || parseNonNegativeNumber(row.market_value_eur) === undefined;
+    });
+    if (hasBadValuationRow) {
+      setErrorMsg(t('players.form.invalidValuationRow'));
       return;
     }
 
@@ -118,7 +159,7 @@ export function PlayerFormModal({ open, onClose, editingPlayer }: PlayerFormModa
       }
       onClose();
     } catch (err) {
-      setErrorMsg(getApiErrorMessage(err, 'Request failed'));
+      setErrorMsg(getApiErrorMessage(err, t('errors.requestFailed')));
     }
   };
 
@@ -128,6 +169,7 @@ export function PlayerFormModal({ open, onClose, editingPlayer }: PlayerFormModa
       onClose={onClose}
       title={isEditing ? t('players.editPlayer') : t('players.addPlayer')}
       size="xl"
+      dismissible={!isSubmitting}
     >
       <form noValidate onSubmit={handleSubmit} className="space-y-5">
         {errorMsg && (

@@ -70,4 +70,33 @@ describe('LeagueChartsGrid', () => {
     fireEvent.click(showAllButtons[0]);
     expect(onSelectLeague).toHaveBeenCalledWith(undefined);
   });
+
+  it('renders per-league error state with retry and isolates single-chart render crashes', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const retryFn = vi.fn();
+    const partialErrorSeries = mockSeries.map((entry, idx) =>
+      idx === 0 ? { ...entry, data: [], isError: true, error: new Error('503'), refetch: retryFn } : entry,
+    );
+
+    render(
+      <LeagueChartsGrid
+        kicker="TOP 5"
+        title="Fixed League Charts"
+        series={partialErrorSeries}
+        renderChart={(_items, leagueId) => {
+          if (leagueId === 'ES1') {
+            throw new Error('ES1 chart failure');
+          }
+          return <div data-testid={`chart-${leagueId}`}>{leagueId}</div>;
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Unable to load chart data for this league.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(retryFn).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Unable to render this section')).toBeInTheDocument();
+    expect(screen.getByTestId('chart-IT1')).toBeInTheDocument();
+    consoleSpy.mockRestore();
+  });
 });

@@ -11,6 +11,7 @@ import { Input, Select } from '../../../shared/components/ui/Input';
 import { useDemoMode } from '../../../shared/context/DemoModeContext';
 import { useToast } from '../../../shared/context/ToastContext';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
+import { isValidEmail } from '../../../shared/utils/validation';
 import { ContactInfoPanel } from '../components/ContactInfoPanel';
 
 const TOPICS = ['scouting', 'api', 'support', 'partnership'] as const;
@@ -33,9 +34,10 @@ export function ContactPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setErrorMsg(null);
 
-    if (!name.trim() || !email.includes('@') || message.trim().length < 10) {
+    if (!name.trim() || !isValidEmail(email) || message.trim().length < 10) {
       setErrorMsg(t('contact.validationError'));
       return;
     }
@@ -108,7 +110,7 @@ export function ContactPage() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} noValidate className="space-y-4">
                 <CardHeader
                   kicker="SUPPORT & INQUIRIES"
                   title={t('contact.formTitle')}
@@ -116,7 +118,10 @@ export function ContactPage() {
                 />
 
                 {errorMsg && (
-                  <div className="rounded-2xl px-4 py-3 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)]">
+                  <div
+                    role="alert"
+                    className="rounded-2xl px-4 py-3 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)]"
+                  >
                     {errorMsg}
                   </div>
                 )}

@@ -19,6 +19,7 @@ import { getCompetitionLabel } from '../../../shared/types/constants';
 import type { SilverTransfer } from '../../../shared/types/domain.types';
 import { exportToCsv } from '../../../shared/utils/exportCsv';
 import { formatCompactEur, formatDate } from '../../../shared/utils/formatters';
+import { parsePositiveInt } from '../../../shared/utils/validation';
 import { TransferDetailModal } from '../components/TransferDetailModal';
 import { TransferFormModal } from '../components/TransferFormModal';
 import {
@@ -59,10 +60,10 @@ export function TransfersPage() {
 
   const query = useTransfersQuery({
     name: debouncedSearch || undefined,
-    season: filters.season ? Number(filters.season) : undefined,
+    season: parsePositiveInt(filters.season),
     competition_id: filters.competitionId || undefined,
     position: filters.position || undefined,
-    player_id: filters.playerId ? Number(filters.playerId) : undefined,
+    player_id: parsePositiveInt(filters.playerId),
     page,
     limit,
   });
@@ -77,27 +78,31 @@ export function TransfersPage() {
       showToast(t('transfers.deletedSuccess'), 'success');
       setDeletingTransfer(null);
     } catch (err) {
-      showToast(getApiErrorMessage(err, 'Delete failed'), 'error');
+      showToast(getApiErrorMessage(err, t('errors.deleteFailed')), 'error');
     }
   };
 
   const handleExport = () => {
-    exportToCsv(
-      'mercatoiq-transfers',
-      ['Player ID', 'From Club', 'To Club', 'Season', 'League', 'Type', 'Date', 'Fee EUR', 'Market Value EUR'],
-      transfers.map((tr) => [
-        tr.player_id,
-        tr.from_club_name,
-        tr.to_club_name,
-        tr.season,
-        tr.competition_id,
-        tr.transfer_type,
-        tr.transfer_date,
-        tr.transfer_fee_eur,
-        tr.market_value_at_transfer_eur,
-      ]),
-    );
-    showToast(t('common.exportedSuccess'), 'success');
+    try {
+      exportToCsv(
+        'mercatoiq-transfers',
+        ['Player ID', 'From Club', 'To Club', 'Season', 'League', 'Type', 'Date', 'Fee EUR', 'Market Value EUR'],
+        transfers.map((tr) => [
+          tr.player_id,
+          tr.from_club_name,
+          tr.to_club_name,
+          tr.season,
+          tr.competition_id,
+          tr.transfer_type,
+          tr.transfer_date,
+          tr.transfer_fee_eur,
+          tr.market_value_at_transfer_eur,
+        ]),
+      );
+      showToast(t('common.exportedSuccess'), 'success');
+    } catch {
+      showToast(t('errors.exportFailed'), 'error');
+    }
   };
 
   const columns: DataColumn<SilverTransfer>[] = [
@@ -268,6 +273,7 @@ export function TransfersPage() {
           data={transfers}
           rowKey={(tr) => tr._id}
           isLoading={query.isLoading}
+          isError={query.isError}
           onRowClick={(tr) => setViewingTransfer(tr)}
         />
         <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />

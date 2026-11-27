@@ -55,6 +55,8 @@ export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signu
       await loginWithGoogleDemo();
       showToast(t('googleAuth.demoSuccess'), 'success');
       navigate(redirectTarget, { replace: true });
+    } catch (err) {
+      showToast(getApiErrorMessage(err, t('googleAuth.unavailable')), 'error');
     } finally {
       setLoading(false);
     }

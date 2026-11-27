@@ -6,6 +6,7 @@ import {
   SEASONS,
   TOP_FIVE_LEAGUES,
 } from '../../../shared/types/constants';
+import { parsePositiveInt } from '../../../shared/utils/validation';
 
 export interface AnalyticsFiltersState {
   season?: number;
@@ -112,10 +113,9 @@ export function AnalyticsFilterBar({
             placeholder={t('filters.clubIdPlaceholder')}
             value={filters.club_id ?? ''}
             onChange={(e) => {
-              const val = e.target.value.trim();
               onChange({
                 ...filters,
-                club_id: val ? Number(val) : undefined,
+                club_id: parsePositiveInt(e.target.value),
               });
             }}
           />

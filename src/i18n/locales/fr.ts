@@ -93,6 +93,42 @@ export const fr: TranslationDictionary = {
     boundaryDescription:
       'Une erreur inattendue s’est produite lors du rendu. Rechargez la page ou revenez à la vue d’ensemble.',
     reloadPage: 'Recharger la page',
+    tryAgain: 'Réessayer',
+    sectionTitle: 'Impossible d’afficher cette section',
+    sectionDescription:
+      'Une erreur d’affichage est survenue dans ce module. Réinitialisez-le ou rechargez la page.',
+    chunkLoadDescription:
+      'Une nouvelle version de l’application a peut-être été déployée. Rechargez la page pour charger les derniers modules.',
+    timeoutTitle: 'Délai d’attente dépassé',
+    timeoutDescription:
+      'Le serveur a mis trop de temps à répondre. Réessayez dans un instant ou passez en Mode Démo.',
+    unauthorizedTitle: 'Authentification requise',
+    unauthorizedDescription: 'Votre session est absente ou expirée. Veuillez vous reconnecter.',
+    sessionExpired: 'Votre session a expiré. Veuillez vous reconnecter.',
+    forbiddenTitle: 'Accès refusé',
+    forbiddenDescription: 'Vous n’avez pas les droits nécessaires pour effectuer cette action.',
+    notFoundTitle: 'Ressource introuvable',
+    notFoundDescription: 'L’enregistrement demandé est introuvable.',
+    conflictTitle: 'Conflit détecté',
+    validationTitle: 'Erreur de validation',
+    rateLimitedTitle: 'Trop de requêtes',
+    rateLimitedDescription: 'Limite de débit atteinte. Patientez quelques secondes avant de réessayer.',
+    serverTitle: 'Erreur serveur',
+    serverDescription:
+      'Le backend a rencontré une erreur interne. Réessayez bientôt ou explorez le Mode Démo.',
+    malformedResponseTitle: 'Réponse serveur inattendue',
+    malformedResponseDescription:
+      'L’API a renvoyé un format de réponse invalide. Réessayez ou vérifiez la version du backend.',
+    chartLoadFailed: 'Impossible de charger les données du graphe pour cette ligue.',
+    exportFailed: 'Impossible de générer l’export CSV.',
+    deleteFailed: 'La suppression a échoué.',
+    requestFailed: 'La requête a échoué. Vérifiez vos saisies et réessayez.',
+    invalidPlayerIdTitle: 'ID joueur invalide',
+    invalidPlayerIdDescription: 'L’URL doit contenir un identifiant joueur Transfermarkt numérique positif.',
+    transferHistoryError: 'Impossible de charger l’historique des transferts de ce joueur.',
+    previewLoadError: 'Impossible de charger cet aperçu pour le moment.',
+    demoPipelineNotice:
+      'Le déclenchement du pipeline requiert le mode API Live avec un compte administrateur.',
   },
   landing: {
     badge: 'Architecture Médaillon · Bronze → Silver → Gold',
@@ -470,6 +506,11 @@ export const fr: TranslationDictionary = {
       valuationAmount: 'Valeur (€)',
       requiredError: 'L’ID joueur et le nom complet sont obligatoires.',
       clubPairError: 'Renseignez l’ID et le nom du club ensemble, ou laissez les deux vides.',
+      invalidPlayerId: 'L’ID joueur doit être un entier positif.',
+      invalidClubId: 'L’ID du club doit être un entier positif.',
+      invalidHeight: 'La taille doit être comprise entre 100 et 250 cm.',
+      negativeValue: 'Les valeurs marchandes doivent être supérieures ou égales à 0.',
+      invalidValuationRow: 'Chaque ligne de valorisation doit contenir une date et un montant positif ou nul.',
     },
     detail: {
       age: 'Âge',
@@ -519,6 +560,10 @@ export const fr: TranslationDictionary = {
       marketValueEur: 'Valeur au transfert (€)',
       transferType: 'Type de transfert',
       requiredError: 'L’ID joueur, la saison et la compétition sont obligatoires.',
+      invalidPlayerId: 'L’ID joueur doit être un entier positif.',
+      invalidSeason: 'La saison doit être un entier entre 1990 et 2035.',
+      invalidClubId: 'Les ID de club doivent être des entiers positifs.',
+      negativeAmount: 'L’indemnité et la valeur marchande doivent être supérieures ou égales à 0.',
     },
   },
   system: {

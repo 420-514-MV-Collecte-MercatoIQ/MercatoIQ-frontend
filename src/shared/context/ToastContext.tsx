@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 import { cn } from '../utils/formatters';
 
@@ -18,16 +26,33 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const timersRef = useRef<Map<number, number>>(new Map());
 
   const dismiss = useCallback((id: number) => {
+    const timer = timersRef.current.get(id);
+    if (timer !== undefined) {
+      window.clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
     setToasts((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => {
+      for (const timer of timers.values()) {
+        window.clearTimeout(timer);
+      }
+      timers.clear();
+    };
   }, []);
 
   const showToast = useCallback(
     (message: string, type: ToastType = 'info') => {
       const id = Date.now() + Math.floor(Math.random() * 1000);
-      setToasts((prev) => [...prev, { id, type, message }]);
-      window.setTimeout(() => dismiss(id), 4200);
+      setToasts((prev) => [...prev.slice(-4), { id, type, message }]);
+      const timer = window.setTimeout(() => dismiss(id), 4200);
+      timersRef.current.set(id, timer);
     },
     [dismiss],
   );
@@ -42,6 +67,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
+            role={toast.type === 'error' ? 'alert' : 'status'}
             className={cn(
               'pointer-events-auto flex items-start gap-3 rounded-2xl px-4 py-3 text-sm font-medium shadow-xl border backdrop-blur-md transition-all',
               'bg-[var(--bg-surface)] text-[var(--text-primary)] border-[var(--border-strong)]',

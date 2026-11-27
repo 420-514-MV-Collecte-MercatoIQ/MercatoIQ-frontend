@@ -12,12 +12,13 @@ import {
   updateTransfer,
 } from '../api/transfersApi';
 
-export function useTransfersQuery(query: TransferQueryParams) {
+export function useTransfersQuery(query: TransferQueryParams, enabled = true) {
   const { isDemoMode } = useDemoMode();
   return useQuery({
     queryKey: ['transfers', isDemoMode, query],
     queryFn: () => getTransfers(query),
     placeholderData: keepPreviousData,
+    enabled,
   });
 }
 

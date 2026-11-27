@@ -9,6 +9,7 @@ import {
   YAxis,
 } from 'recharts';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
+import { ErrorBoundary } from '../../../shared/components/ui/ErrorBoundary';
 import { ChartTooltipCard } from '../../../shared/components/charts/ChartTooltip';
 import type { MarketValuation } from '../../../shared/types/domain.types';
 import { formatDate, formatEur } from '../../../shared/utils/formatters';
@@ -21,7 +22,15 @@ export function PlayerValuationChart({ valuations }: PlayerValuationChartProps) 
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
-  const data = [...valuations]
+  const safeValuations = Array.isArray(valuations) ? valuations : [];
+  const data = safeValuations
+    .filter(
+      (v) =>
+        v &&
+        !Number.isNaN(new Date(v.date).getTime()) &&
+        typeof v.market_value_eur === 'number' &&
+        Number.isFinite(v.market_value_eur),
+    )
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map((v) => ({
       dateLabel: formatDate(v.date, lang),
@@ -33,7 +42,8 @@ export function PlayerValuationChart({ valuations }: PlayerValuationChartProps) 
     <Card className="xl:col-span-7">
       <CardHeader kicker="SILVER PROFILE" title={t('players.detail.valuationChartTitle')} />
       {data.length > 0 ? (
-        <div style={{ width: '100%', height: 270 }}>
+        <ErrorBoundary variant="section" resetKeys={[data.length]}>
+          <div style={{ width: '100%', height: 270 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 12, right: 16, left: 0, bottom: 4 }}>
               <defs>
@@ -83,6 +93,7 @@ export function PlayerValuationChart({ valuations }: PlayerValuationChartProps) 
             </AreaChart>
           </ResponsiveContainer>
         </div>
+        </ErrorBoundary>
       ) : (
         <div className="h-56 flex items-center justify-center text-sm text-[var(--text-muted)]">
           {t('players.detail.valuationEmpty')}

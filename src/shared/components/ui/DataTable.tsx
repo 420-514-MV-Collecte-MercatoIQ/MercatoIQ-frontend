@@ -15,6 +15,7 @@ interface DataTableProps<T> {
   data: T[];
   rowKey: (row: T, index: number) => string | number;
   isLoading?: boolean;
+  isError?: boolean;
   onRowClick?: (row: T) => void;
   emptyTitle?: string;
   emptyHint?: string;
@@ -25,15 +26,22 @@ export function DataTable<T>({
   data,
   rowKey,
   isLoading,
+  isError,
   onRowClick,
   emptyTitle,
   emptyHint,
 }: DataTableProps<T>) {
+  const safeData = Array.isArray(data) ? data : [];
+
   if (isLoading) {
     return <LoadingSkeleton rows={6} />;
   }
 
-  if (data.length === 0) {
+  if (isError && safeData.length === 0) {
+    return null;
+  }
+
+  if (safeData.length === 0) {
     return <EmptyState title={emptyTitle} hint={emptyHint} />;
   }
 
@@ -58,7 +66,7 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--border-subtle)]">
-          {data.map((row, idx) => (
+          {safeData.map((row, idx) => (
             <tr
               key={rowKey(row, idx)}
               onClick={onRowClick ? () => onRowClick(row) : undefined}

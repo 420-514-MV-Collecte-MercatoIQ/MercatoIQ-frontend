@@ -11,6 +11,7 @@ interface ModalProps {
   subtitle?: string;
   children: ReactNode;
   size?: 'md' | 'lg' | 'xl';
+  dismissible?: boolean;
 }
 
 export function Modal({
@@ -20,15 +21,16 @@ export function Modal({
   subtitle,
   children,
   size = 'lg',
+  dismissible = true,
 }: ModalProps) {
   useEffect(() => {
-    if (!open) return;
+    if (!open || !dismissible) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [open, onClose]);
+  }, [open, dismissible, onClose]);
 
   if (!open) return null;
 
@@ -40,7 +42,7 @@ export function Modal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
+      onClick={dismissible ? onClose : undefined}
     >
       <div
         className={cn(
@@ -58,8 +60,9 @@ export function Modal({
           </div>
           <button
             type="button"
-            onClick={onClose}
-            className="h-8 w-8 rounded-full flex items-center justify-center bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
+            disabled={!dismissible}
+            onClick={dismissible ? onClose : undefined}
+            className="h-8 w-8 rounded-full flex items-center justify-center bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -91,7 +94,7 @@ export function ConfirmDialog({
   const { t } = useTranslation();
 
   return (
-    <Modal open={open} onClose={onClose} title={title} size="md">
+    <Modal open={open} onClose={onClose} title={title} size="md" dismissible={!isLoading}>
       <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-6">{description}</p>
       <div className="flex items-center justify-end gap-3">
         <Button variant="secondary" onClick={onClose} disabled={isLoading}>

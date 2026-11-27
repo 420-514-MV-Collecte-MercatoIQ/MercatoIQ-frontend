@@ -12,6 +12,11 @@ import {
   type TransferFormValues,
 } from '../../../shared/utils/payloadMappers';
 import {
+  parseIntInRange,
+  parseNonNegativeNumber,
+  parsePositiveInt,
+} from '../../../shared/utils/validation';
+import {
   useCreateTransferMutation,
   useUpdateTransferMutation,
 } from '../hooks/useTransfersQueries';
@@ -87,10 +92,39 @@ export function TransferFormModal({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setErrorMsg(null);
 
     if (!values.player_id.trim() || !values.season.trim() || !values.competition_id.trim()) {
       setErrorMsg(t('transfers.form.requiredError'));
+      return;
+    }
+
+    if (parsePositiveInt(values.player_id) === undefined) {
+      setErrorMsg(t('transfers.form.invalidPlayerId'));
+      return;
+    }
+
+    if (parseIntInRange(values.season, 1990, 2035) === undefined) {
+      setErrorMsg(t('transfers.form.invalidSeason'));
+      return;
+    }
+
+    if (
+      (values.from_club_id.trim() && parsePositiveInt(values.from_club_id) === undefined) ||
+      (values.to_club_id.trim() && parsePositiveInt(values.to_club_id) === undefined)
+    ) {
+      setErrorMsg(t('transfers.form.invalidClubId'));
+      return;
+    }
+
+    if (
+      (values.transfer_fee_eur.trim() &&
+        parseNonNegativeNumber(values.transfer_fee_eur) === undefined) ||
+      (values.market_value_at_transfer_eur.trim() &&
+        parseNonNegativeNumber(values.market_value_at_transfer_eur) === undefined)
+    ) {
+      setErrorMsg(t('transfers.form.negativeAmount'));
       return;
     }
 
@@ -107,7 +141,7 @@ export function TransferFormModal({
       }
       onClose();
     } catch (err) {
-      setErrorMsg(getApiErrorMessage(err, 'Request failed'));
+      setErrorMsg(getApiErrorMessage(err, t('errors.requestFailed')));
     }
   };
 
@@ -117,6 +151,7 @@ export function TransferFormModal({
       onClose={onClose}
       title={isEditing ? t('transfers.editTransfer') : t('transfers.addTransfer')}
       size="xl"
+      dismissible={!isSubmitting}
     >
       <form noValidate onSubmit={handleSubmit} className="space-y-5">
         {errorMsg && (

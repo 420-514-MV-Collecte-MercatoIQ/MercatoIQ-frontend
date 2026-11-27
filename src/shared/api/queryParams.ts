@@ -1,8 +1,10 @@
 import type { PaginationParams } from '../types/common.types';
 
+const POSITIVE_INT_ID_KEYS = new Set(['club_id', 'player_id', 'from_club_id', 'to_club_id']);
+
 /**
- * Strips undefined, null, empty strings, and NaN values so NestJS ValidationPipe
- * with `forbidNonWhitelisted` / `@IsInt()` never rejects blank filter controls.
+ * Strips undefined, null, empty strings, and NaN/non-finite values so NestJS ValidationPipe
+ * with `forbidNonWhitelisted` / `@IsInt()` never rejects blank or invalid filter controls.
  */
 export function cleanQueryParams<T extends object>(
   params?: T,
@@ -12,7 +14,13 @@ export function cleanQueryParams<T extends object>(
 
   for (const [key, raw] of Object.entries(params as Record<string, unknown>)) {
     if (raw === undefined || raw === null || raw === '') continue;
-    if (typeof raw === 'number' && Number.isNaN(raw)) continue;
+    if (typeof raw === 'number' && !Number.isFinite(raw)) continue;
+
+    if (POSITIVE_INT_ID_KEYS.has(key) && typeof raw === 'number') {
+      if (!Number.isInteger(raw) || raw < 1) continue;
+      cleaned[key] = raw;
+      continue;
+    }
 
     if (key === 'limit' && typeof raw === 'number') {
       cleaned[key] = Math.min(100, Math.max(1, Math.trunc(raw)));

@@ -91,6 +91,42 @@ export const en = {
     boundaryDescription:
       'An unexpected UI error occurred. You can reload the page or return safely to the Overview dashboard.',
     reloadPage: 'Reload page',
+    tryAgain: 'Try again',
+    sectionTitle: 'Unable to render this section',
+    sectionDescription:
+      'A rendering error occurred in this widget. Try resetting it or reload the page.',
+    chunkLoadDescription:
+      'A new version of the application may have been deployed. Reload the page to fetch the latest bundle.',
+    timeoutTitle: 'Request Timed Out',
+    timeoutDescription:
+      'The server took too long to respond. Please retry in a moment or switch to Demo Mode.',
+    unauthorizedTitle: 'Authentication Required',
+    unauthorizedDescription: 'Your session is missing or expired. Please sign in to continue.',
+    sessionExpired: 'Your session has expired. Please sign in again.',
+    forbiddenTitle: 'Access Denied',
+    forbiddenDescription: 'You do not have permission to perform this action.',
+    notFoundTitle: 'Resource Not Found',
+    notFoundDescription: 'The requested record could not be found.',
+    conflictTitle: 'Conflict Detected',
+    validationTitle: 'Validation Error',
+    rateLimitedTitle: 'Too Many Requests',
+    rateLimitedDescription: 'Rate limit exceeded. Please wait a few seconds before retrying.',
+    serverTitle: 'Server Error',
+    serverDescription:
+      'The backend encountered an unexpected error. Please retry shortly or preview Demo Mode.',
+    malformedResponseTitle: 'Unexpected Server Response',
+    malformedResponseDescription:
+      'The API returned an unexpected payload format. Please retry or check the backend version.',
+    chartLoadFailed: 'Unable to load chart data for this league.',
+    exportFailed: 'Could not generate the CSV export.',
+    deleteFailed: 'Failed to delete the record.',
+    requestFailed: 'Request failed. Please check your inputs and try again.',
+    invalidPlayerIdTitle: 'Invalid Player ID',
+    invalidPlayerIdDescription: 'The URL must specify a positive numeric Transfermarkt player ID.',
+    transferHistoryError: 'Unable to load transfer history for this player.',
+    previewLoadError: 'Unable to load preview records right now.',
+    demoPipelineNotice:
+      'Pipeline triggers require Live API mode with an administrator session. Switch to Live API to execute.',
   },
   landing: {
     badge: 'Medallion Football Intelligence · Bronze → Silver → Gold',
@@ -467,6 +503,11 @@ export const en = {
       valuationAmount: 'Value (€)',
       requiredError: 'Player ID and Full Name are required.',
       clubPairError: 'Provide both Club ID and Club Name, or leave both empty.',
+      invalidPlayerId: 'Player ID must be a positive integer.',
+      invalidClubId: 'Club ID must be a positive integer.',
+      invalidHeight: 'Height must be between 100 and 250 cm.',
+      negativeValue: 'Market values must be 0 or greater.',
+      invalidValuationRow: 'Each valuation entry must include both a date and a non-negative amount.',
     },
     detail: {
       age: 'Age',
@@ -516,6 +557,10 @@ export const en = {
       marketValueEur: 'Market Value at Transfer (€)',
       transferType: 'Transfer Type',
       requiredError: 'Player ID, Season, and Competition are required.',
+      invalidPlayerId: 'Player ID must be a positive integer.',
+      invalidSeason: 'Season must be an integer between 1990 and 2035.',
+      invalidClubId: 'Club IDs must be positive integers.',
+      negativeAmount: 'Transfer fee and market value must be 0 or greater.',
     },
   },
   system: {

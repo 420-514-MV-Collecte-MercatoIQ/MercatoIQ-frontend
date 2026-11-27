@@ -144,22 +144,26 @@ export function ClubRoiPage() {
   ];
 
   const handleExport = () => {
-    exportToCsv(
-      'mercatoiq-club-roi',
-      ['Club ID', 'Club', 'Season', 'League', 'Signings', 'Fees Paid EUR', 'Value Gain EUR', 'ROI', 'G+A'],
-      rows.map((r) => [
-        r.club_id,
-        r.club_name,
-        r.season,
-        r.competition_id,
-        r.players_bought,
-        r.total_fees_paid_eur,
-        r.total_value_gain_eur,
-        r.roi,
-        r.total_ga,
-      ]),
-    );
-    showToast(t('common.exportedSuccess'), 'success');
+    try {
+      exportToCsv(
+        'mercatoiq-club-roi',
+        ['Club ID', 'Club', 'Season', 'League', 'Signings', 'Fees Paid EUR', 'Value Gain EUR', 'ROI', 'G+A'],
+        rows.map((r) => [
+          r.club_id,
+          r.club_name,
+          r.season,
+          r.competition_id,
+          r.players_bought,
+          r.total_fees_paid_eur,
+          r.total_value_gain_eur,
+          r.roi,
+          r.total_ga,
+        ]),
+      );
+      showToast(t('common.exportedSuccess'), 'success');
+    } catch {
+      showToast(t('errors.exportFailed'), 'error');
+    }
   };
 
   return (
@@ -233,6 +237,7 @@ export function ClubRoiPage() {
           data={rows}
           rowKey={(r) => `${r.club_id}-${r.season}`}
           isLoading={query.isLoading}
+          isError={query.isError}
         />
         <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />
       </Card>

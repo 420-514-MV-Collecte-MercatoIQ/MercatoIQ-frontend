@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Building2, Calendar, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Building2, Calendar, Pencil, ShieldAlert, Trash2 } from 'lucide-react';
 import { getApiErrorMessage } from '../../../shared/api/httpClient';
 import { Card } from '../../../shared/components/ui/Card';
 import { Button } from '../../../shared/components/ui/Button';
@@ -28,6 +28,7 @@ import {
 export function PlayerDetailPage() {
   const { id } = useParams();
   const playerId = Number(id);
+  const isValidPlayerId = Number.isInteger(playerId) && playerId > 0;
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const navigate = useNavigate();
@@ -36,8 +37,11 @@ export function PlayerDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const playerQuery = usePlayerDetailQuery(playerId);
-  const transfersQuery = useTransfersQuery({ player_id: playerId, page: 1, limit: 20 });
+  const playerQuery = usePlayerDetailQuery(isValidPlayerId ? playerId : 0);
+  const transfersQuery = useTransfersQuery(
+    { player_id: playerId, page: 1, limit: 20 },
+    isValidPlayerId,
+  );
   const deleteMutation = useDeletePlayerMutation();
 
   const player = playerQuery.data;
@@ -50,9 +54,40 @@ export function PlayerDetailPage() {
       showToast(t('players.deletedSuccess'), 'success');
       navigate('/players');
     } catch (err) {
-      showToast(getApiErrorMessage(err, 'Delete failed'), 'error');
+      showToast(getApiErrorMessage(err, t('errors.deleteFailed')), 'error');
     }
   };
+
+  if (!isValidPlayerId) {
+    return (
+      <div className="space-y-4">
+        <Link
+          to="/players"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          {t('common.backToList')}
+        </Link>
+        <div role="alert" className="max-w-lg">
+          <Card padding="lg" className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-2xl bg-[var(--accent-negative-soft)] text-[var(--accent-negative)] flex items-center justify-center shrink-0">
+                <ShieldAlert className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-[var(--text-primary)]">
+                  {t('errors.invalidPlayerIdTitle')}
+                </h2>
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                  {t('errors.invalidPlayerIdDescription')}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (playerQuery.isLoading) {
     return (
@@ -163,6 +198,9 @@ export function PlayerDetailPage() {
         <PlayerTransferHistory
           transfers={transfersQuery.data?.data ?? []}
           isLoading={transfersQuery.isLoading}
+          isError={transfersQuery.isError}
+          error={transfersQuery.error}
+          onRetry={() => void transfersQuery.refetch()}
         />
       </div>
 

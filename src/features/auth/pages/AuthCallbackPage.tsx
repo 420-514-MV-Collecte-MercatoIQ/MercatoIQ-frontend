@@ -19,6 +19,18 @@ export function AuthCallbackPage() {
     handledRef.current = true;
 
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const oauthError =
+      searchParams.get('error_description') ||
+      searchParams.get('error') ||
+      hashParams.get('error_description') ||
+      hashParams.get('error');
+
+    if (oauthError) {
+      showToast(oauthError || t('googleAuth.unavailable'), 'error');
+      navigate('/login', { replace: true });
+      return;
+    }
+
     const token =
       searchParams.get('token') ||
       searchParams.get('access_token') ||

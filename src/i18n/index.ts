@@ -3,10 +3,11 @@ import { initReactI18next } from 'react-i18next';
 import { en } from './locales/en';
 import { fr } from './locales/fr';
 
+import { safeStorageGet, safeStorageSet } from '../shared/utils/storage';
+
 export const LANG_STORAGE_KEY = 'mercatoiq_lang';
 
-const savedLang =
-  typeof window !== 'undefined' ? localStorage.getItem(LANG_STORAGE_KEY) : null;
+const savedLang = safeStorageGet(LANG_STORAGE_KEY);
 
 const initialLang = savedLang === 'fr' ? 'fr' : 'en';
 
@@ -27,9 +28,7 @@ void i18n.use(initReactI18next).init({
 });
 
 i18n.on('languageChanged', (lng) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(LANG_STORAGE_KEY, lng);
-  }
+  safeStorageSet(LANG_STORAGE_KEY, lng);
   if (typeof document !== 'undefined') {
     document.documentElement.lang = lng;
   }

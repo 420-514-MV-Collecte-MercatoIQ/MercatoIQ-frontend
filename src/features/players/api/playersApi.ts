@@ -1,4 +1,9 @@
-import { AppApiError, httpClient } from '../../../shared/api/httpClient';
+import {
+  AppApiError,
+  assertObjectPayload,
+  assertPaginatedPayload,
+  httpClient,
+} from '../../../shared/api/httpClient';
 import { cleanQueryParams } from '../../../shared/api/queryParams';
 import { isDemoModeActive } from '../../../shared/context/DemoModeContext';
 import { demoDataService } from '../../../shared/mocks/demoData';
@@ -19,7 +24,7 @@ export async function getPlayers(
   const { data } = await httpClient.get<PaginatedResponse<SilverPlayer>>('/players', {
     params: cleanQueryParams(query),
   });
-  return data;
+  return assertPaginatedPayload<SilverPlayer>(data, '/players');
 }
 
 export async function getPlayerById(playerId: number): Promise<SilverPlayer> {
@@ -31,7 +36,7 @@ export async function getPlayerById(playerId: number): Promise<SilverPlayer> {
     return found;
   }
   const { data } = await httpClient.get<SilverPlayer>(`/players/${playerId}`);
-  return data;
+  return assertObjectPayload<SilverPlayer>(data, `/players/${playerId}`);
 }
 
 export async function createPlayer(payload: CreatePlayerPayload): Promise<SilverPlayer> {
@@ -39,7 +44,7 @@ export async function createPlayer(payload: CreatePlayerPayload): Promise<Silver
     return demoDataService.createPlayer(payload);
   }
   const { data } = await httpClient.post<SilverPlayer>('/players', payload);
-  return data;
+  return assertObjectPayload<SilverPlayer>(data, '/players');
 }
 
 export async function updatePlayer(
@@ -54,7 +59,7 @@ export async function updatePlayer(
     return updated;
   }
   const { data } = await httpClient.patch<SilverPlayer>(`/players/${playerId}`, payload);
-  return data;
+  return assertObjectPayload<SilverPlayer>(data, `/players/${playerId}`);
 }
 
 export async function deletePlayer(playerId: number): Promise<{ deleted: boolean; player_id: number }> {
@@ -64,5 +69,5 @@ export async function deletePlayer(playerId: number): Promise<{ deleted: boolean
   const { data } = await httpClient.delete<{ deleted: boolean; player_id: number }>(
     `/players/${playerId}`,
   );
-  return data;
+  return assertObjectPayload<{ deleted: boolean; player_id: number }>(data, `/players/${playerId}`);
 }

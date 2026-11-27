@@ -1,4 +1,8 @@
-import { httpClient } from '../../../shared/api/httpClient';
+import {
+  assertObjectPayload,
+  assertPaginatedPayload,
+  httpClient,
+} from '../../../shared/api/httpClient';
 import { cleanQueryParams } from '../../../shared/api/queryParams';
 import { isDemoModeActive } from '../../../shared/context/DemoModeContext';
 import { demoDataService } from '../../../shared/mocks/demoData';
@@ -23,7 +27,7 @@ export async function getAnalyticsKpis(query: KpisQueryParams): Promise<GoldKpis
   const { data } = await httpClient.get<GoldKpisResponse>('/analytics/kpis', {
     params: cleanQueryParams(query),
   });
-  return data;
+  return assertObjectPayload<GoldKpisResponse>(data, '/analytics/kpis');
 }
 
 export async function getClubRoi(
@@ -36,7 +40,7 @@ export async function getClubRoi(
     '/analytics/club-roi',
     { params: cleanQueryParams(query) },
   );
-  return data;
+  return assertPaginatedPayload<GoldClubTransferRoi>(data, '/analytics/club-roi');
 }
 
 export async function getScoutingU23(
@@ -49,7 +53,7 @@ export async function getScoutingU23(
     '/analytics/scouting-u23',
     { params: cleanQueryParams(query) },
   );
-  return data;
+  return assertPaginatedPayload<GoldUndervaluedScouting>(data, '/analytics/scouting-u23');
 }
 
 export async function getUclVsDomestic(
@@ -62,7 +66,7 @@ export async function getUclVsDomestic(
     '/analytics/ucl-vs-domestic',
     { params: cleanQueryParams(query) },
   );
-  return data;
+  return assertPaginatedPayload<GoldUclVsDomestic>(data, '/analytics/ucl-vs-domestic');
 }
 
 export async function getSuperSubs(
@@ -75,5 +79,5 @@ export async function getSuperSubs(
     '/analytics/super-subs',
     { params: cleanQueryParams(query) },
   );
-  return data;
+  return assertPaginatedPayload<GoldSuperSubs>(data, '/analytics/super-subs');
 }

@@ -4,6 +4,7 @@ import { Modal } from '../../../shared/components/ui/Modal';
 import { Input } from '../../../shared/components/ui/Input';
 import { Button } from '../../../shared/components/ui/Button';
 import { useToast } from '../../../shared/context/ToastContext';
+import { isValidEmail } from '../../../shared/utils/validation';
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -19,18 +20,24 @@ export function ForgotPasswordModal({
   const { t } = useTranslation();
   const { showToast } = useToast();
   const [email, setEmail] = useState(initialEmail);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
   useEffect(() => {
     if (open) {
       setEmail(initialEmail);
+      setErrorMsg(null);
       setSent(false);
     }
   }, [open, initialEmail]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!email.includes('@')) return;
+    setErrorMsg(null);
+    if (!isValidEmail(email)) {
+      setErrorMsg(t('auth.invalidEmail'));
+      return;
+    }
     setSent(true);
     showToast(t('auth.forgotModalSent', { email: email.trim() }), 'info');
   };
@@ -53,7 +60,15 @@ export function ForgotPasswordModal({
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          {errorMsg && (
+            <div
+              role="alert"
+              className="rounded-xl px-3.5 py-2.5 text-xs font-medium bg-[var(--accent-negative-soft)] text-[var(--accent-negative)] border border-[var(--accent-negative)]/30"
+            >
+              {errorMsg}
+            </div>
+          )}
           <Input
             type="email"
             required

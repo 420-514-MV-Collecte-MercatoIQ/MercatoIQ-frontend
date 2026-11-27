@@ -147,22 +147,26 @@ export function ScoutingU23Page() {
   ];
 
   const handleExport = () => {
-    exportToCsv(
-      'mercatoiq-scouting-u23',
-      ['Player ID', 'Player', 'Age', 'Club', 'League', 'Position', 'Market Value EUR', 'ML Fair Value EUR', 'Undervalue Ratio'],
-      rows.map((r) => [
-        r.player_id,
-        r.player_name,
-        r.age,
-        r.club_name,
-        r.competition_id,
-        r.position,
-        r.market_value_eur,
-        r.estimated_value_eur,
-        r.undervalue_ratio,
-      ]),
-    );
-    showToast(t('common.exportedSuccess'), 'success');
+    try {
+      exportToCsv(
+        'mercatoiq-scouting-u23',
+        ['Player ID', 'Player', 'Age', 'Club', 'League', 'Position', 'Market Value EUR', 'ML Fair Value EUR', 'Undervalue Ratio'],
+        rows.map((r) => [
+          r.player_id,
+          r.player_name,
+          r.age,
+          r.club_name,
+          r.competition_id,
+          r.position,
+          r.market_value_eur,
+          r.estimated_value_eur,
+          r.undervalue_ratio,
+        ]),
+      );
+      showToast(t('common.exportedSuccess'), 'success');
+    } catch {
+      showToast(t('errors.exportFailed'), 'error');
+    }
   };
 
   return (
@@ -207,9 +211,13 @@ export function ScoutingU23Page() {
           const pts = items.map((p) => ({
             name: p.player_name,
             club: p.club_name || p.competition_id,
-            marketM: Math.round((p.market_value_eur / 1_000_000) * 10) / 10,
-            estimatedM: Math.round((p.estimated_value_eur / 1_000_000) * 10) / 10,
-            ratio: p.undervalue_ratio,
+            marketM: Number.isFinite(p.market_value_eur)
+              ? Math.round((p.market_value_eur / 1_000_000) * 10) / 10
+              : 0,
+            estimatedM: Number.isFinite(p.estimated_value_eur)
+              ? Math.round((p.estimated_value_eur / 1_000_000) * 10) / 10
+              : 0,
+            ratio: Number.isFinite(p.undervalue_ratio) ? p.undervalue_ratio : null,
           }));
           return (
             <div style={{ width: '100%', height: 220 }}>
@@ -245,7 +253,7 @@ export function ScoutingU23Page() {
                               value: `€${d.estimatedM}M`,
                               tone: 'positive',
                             },
-                            { label: t('scouting.columns.ratio'), value: `${d.ratio.toFixed(2)}x` },
+                            { label: t('scouting.columns.ratio'), value: formatRatio(d.ratio, 'x', lang) },
                           ]}
                         />
                       );
@@ -265,6 +273,7 @@ export function ScoutingU23Page() {
           data={rows}
           rowKey={(r) => `${r.player_id}-${r.season}`}
           isLoading={query.isLoading}
+          isError={query.isError}
         />
         <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />
       </Card>

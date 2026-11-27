@@ -1,6 +1,9 @@
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { getApiErrorMessage } from '../../../shared/api/httpClient';
 import { Card, CardHeader } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { Button } from '../../../shared/components/ui/Button';
 import { LoadingSkeleton } from '../../../shared/components/ui/StateFeedback';
 import type { SilverTransfer } from '../../../shared/types/domain.types';
 import { getCompetitionLabel } from '../../../shared/types/constants';
@@ -9,9 +12,18 @@ import { formatCompactEur, formatDate } from '../../../shared/utils/formatters';
 interface PlayerTransferHistoryProps {
   transfers: SilverTransfer[];
   isLoading: boolean;
+  isError?: boolean;
+  error?: unknown;
+  onRetry?: () => void;
 }
 
-export function PlayerTransferHistory({ transfers, isLoading }: PlayerTransferHistoryProps) {
+export function PlayerTransferHistory({
+  transfers,
+  isLoading,
+  isError,
+  error,
+  onRetry,
+}: PlayerTransferHistoryProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
@@ -20,6 +32,31 @@ export function PlayerTransferHistory({ transfers, isLoading }: PlayerTransferHi
       <CardHeader kicker="MOVEMENTS" title={t('players.detail.transferHistoryTitle')} />
       {isLoading ? (
         <LoadingSkeleton rows={4} />
+      ) : isError ? (
+        <div
+          role="alert"
+          className="rounded-2xl p-4 border border-[var(--accent-negative)]/30 bg-[var(--accent-negative-soft)]/20 flex flex-col items-center text-center gap-2.5 py-8"
+        >
+          <AlertTriangle className="h-5 w-5 text-[var(--accent-negative)]" />
+          <p className="text-xs font-semibold text-[var(--text-primary)]">
+            {t('errors.transferHistoryError')}
+          </p>
+          {Boolean(error) && (
+            <p className="text-[11px] text-[var(--text-secondary)] max-w-xs">
+              {getApiErrorMessage(error, t('common.apiOfflineTitle'))}
+            </p>
+          )}
+          {onRetry && (
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+              onClick={onRetry}
+            >
+              {t('common.retry')}
+            </Button>
+          )}
+        </div>
       ) : transfers.length > 0 ? (
         <div className="space-y-3">
           {transfers.map((tr) => (

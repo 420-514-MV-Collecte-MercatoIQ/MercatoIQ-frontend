@@ -26,6 +26,8 @@ export interface LeagueSeriesResult<T> {
   data: T[];
   isLoading: boolean;
   isError: boolean;
+  error?: unknown;
+  refetch?: () => void;
 }
 
 export function useKpisQuery(query: KpisQueryParams) {
@@ -98,6 +100,10 @@ export function useClubRoiByLeagueQueries(
     data: results[idx]?.data?.data ?? [],
     isLoading: Boolean(results[idx]?.isLoading),
     isError: Boolean(results[idx]?.isError),
+    error: results[idx]?.error,
+    refetch: () => {
+      void results[idx]?.refetch();
+    },
   }));
 }
 
@@ -127,6 +133,10 @@ export function useScoutingU23ByLeagueQueries(
     data: results[idx]?.data?.data ?? [],
     isLoading: Boolean(results[idx]?.isLoading),
     isError: Boolean(results[idx]?.isError),
+    error: results[idx]?.error,
+    refetch: () => {
+      void results[idx]?.refetch();
+    },
   }));
 }
 
@@ -156,6 +166,10 @@ export function useUclVsDomesticByLeagueQueries(
     data: results[idx]?.data?.data ?? [],
     isLoading: Boolean(results[idx]?.isLoading),
     isError: Boolean(results[idx]?.isError),
+    error: results[idx]?.error,
+    refetch: () => {
+      void results[idx]?.refetch();
+    },
   }));
 }
 
@@ -185,5 +199,9 @@ export function useSuperSubsByLeagueQueries(
     data: results[idx]?.data?.data ?? [],
     isLoading: Boolean(results[idx]?.isLoading),
     isError: Boolean(results[idx]?.isError),
+    error: results[idx]?.error,
+    refetch: () => {
+      void results[idx]?.refetch();
+    },
   }));
 }

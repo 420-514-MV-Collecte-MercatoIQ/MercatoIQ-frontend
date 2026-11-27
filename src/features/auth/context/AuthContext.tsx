@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -15,7 +16,9 @@ import type {
 } from '../../../shared/types/common.types';
 import { googleLoginApi, loginApi, registerApi } from '../api/authApi';
 import { useDemoMode } from '../../../shared/context/DemoModeContext';
+import { useToast } from '../../../shared/context/ToastContext';
 import { decodeJwtPayload } from '../../../shared/utils/jwtUtils';
+import i18n from '../../../i18n';
 import {
   buildCallbackSession,
   clearStoredSession,
@@ -51,9 +54,15 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { isDemoMode } = useDemoMode();
+  const { showToast } = useToast();
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const tokenRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
 
   const persistSession = useCallback((res: AuthResponse) => {
     saveStoredSession(res);
@@ -75,9 +84,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    window.addEventListener(UNAUTHORIZED_EVENT, logout);
-    return () => window.removeEventListener(UNAUTHORIZED_EVENT, logout);
-  }, [logout]);
+    const handleUnauthorized = () => {
+      const hadSession = Boolean(tokenRef.current);
+      logout();
+      if (hadSession) {
+        showToast(i18n.t('errors.sessionExpired'), 'error');
+      }
+    };
+    window.addEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+  }, [logout, showToast]);
 
   const login = useCallback(
     async (payload: LoginPayload): Promise<AuthResponse> => {

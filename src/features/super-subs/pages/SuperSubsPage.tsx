@@ -122,21 +122,25 @@ export function SuperSubsPage() {
   ];
 
   const handleExport = () => {
-    exportToCsv(
-      'mercatoiq-super-subs',
-      ['Player ID', 'Player', 'Club', 'League', 'Sub Apps', 'Sub G+A/90', 'Starter G+A/90', 'Super-Sub Score'],
-      rows.map((r) => [
-        r.player_id,
-        r.player_name,
-        r.club_name,
-        r.competition_id,
-        r.sub_appearances,
-        r.sub_goal_contributions_per_90,
-        r.starter_goal_contributions_per_90,
-        r.super_sub_score,
-      ]),
-    );
-    showToast(t('common.exportedSuccess'), 'success');
+    try {
+      exportToCsv(
+        'mercatoiq-super-subs',
+        ['Player ID', 'Player', 'Club', 'League', 'Sub Apps', 'Sub G+A/90', 'Starter G+A/90', 'Super-Sub Score'],
+        rows.map((r) => [
+          r.player_id,
+          r.player_name,
+          r.club_name,
+          r.competition_id,
+          r.sub_appearances,
+          r.sub_goal_contributions_per_90,
+          r.starter_goal_contributions_per_90,
+          r.super_sub_score,
+        ]),
+      );
+      showToast(t('common.exportedSuccess'), 'success');
+    } catch {
+      showToast(t('errors.exportFailed'), 'error');
+    }
   };
 
   return (
@@ -200,6 +204,7 @@ export function SuperSubsPage() {
           data={rows}
           rowKey={(r) => `${r.player_id}-${r.season}-${r.competition_id}`}
           isLoading={query.isLoading}
+          isError={query.isError}
         />
         <Pagination meta={query.data?.meta} onPageChange={setPage} onLimitChange={setLimit} />
       </Card>

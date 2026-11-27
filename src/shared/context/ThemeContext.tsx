@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { safeStorageGet, safeStorageSet } from '../utils/storage';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -14,13 +15,13 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    const saved = safeStorageGet(THEME_STORAGE_KEY);
     return saved === 'dark' ? 'dark' : 'light';
   });
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    safeStorageSet(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
   const setTheme = useCallback((mode: ThemeMode) => {
