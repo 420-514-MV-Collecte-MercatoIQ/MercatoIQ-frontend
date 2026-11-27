@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚽ MercatoIQ — Frontend
+# ⚽ MercatoIQ Frontend
 
 **European Football Performance & Financial Intelligence Web Application**  
 *Interactive Moneyball analytics across the UEFA Champions League & Top 5 European Leagues, paired with Silver domain management and real-time pipeline controls.*
@@ -17,8 +17,6 @@
 
 </div>
 
----
-
 ## 🧭 Architecture
 
 The frontend is a **React 19 + TypeScript 5.8** single-page application built with **Vite 6** and **Tailwind CSS v4**. Route views in `src/app/router.tsx` are lazy-loaded via `React.lazy`, while `vite.config.ts` splits third-party dependencies into dedicated Rollup vendor chunks (`vendor-react`, `vendor-router`, `vendor-query`, `vendor-charts`, `vendor-i18n`, `vendor-icons`).
@@ -29,13 +27,11 @@ The frontend is a **React 19 + TypeScript 5.8** single-page application built wi
 
 ```mermaid
 flowchart LR
-    Views["React Router v7 Views<br/>/dashboard · Q1–Q4 · Silver CRUD · /system"] --> Query["TanStack Query v5<br/>useQuery & parallel useQueries"]
+    Views["React Router v7 Views<br/>/dashboard · Q1 to Q4 · Silver CRUD · /system"] --> Query["TanStack Query v5<br/>useQuery & parallel useQueries"]
     Query --> Api["Feature API Clients<br/>analyticsApi · playersApi · transfersApi · authApi · healthApi"]
     Api -->|Live API Mode<br/>Axios + JWT Bearer| Backend["NestJS REST API<br/>http://localhost:3000/api/v1"]
     Api -.->|Opt-in Demo Mode| Demo["demoDataService<br/>analyticsFixtures & silverFixtures"]
 ```
-
----
 
 ## 📊 Fixed Top-5 League Chart Grids
 
@@ -53,8 +49,6 @@ Across `/dashboard` and all four Gold analytical pages (`/club-roi`, `/scouting`
   - `CapsuleComparisonChart` (bench vs. starter G+A/90 capsule comparison with interactive hover tooltips)
   - `StripedProgressBar`, `ChartTooltip`, and `PlayerValuationChart` (market value trajectory)
 
----
-
 ## 🗺️ Routes & Features
 
 | Route | View | Access | Capabilities |
@@ -64,22 +58,20 @@ Across `/dashboard` and all four Gold analytical pages (`/club-roi`, `/scouting`
 | `/login`, `/register` | Auth Pages | `GuestRoute` | Email/password JWT auth with inline validation, forgot-password modal, optional Google Identity Services / OAuth redirect |
 | `/auth/callback` | `AuthCallbackPage` | Public | OAuth redirect token & user session ingestion |
 | `/dashboard` | `DashboardPage` | AppShell | Gold KPIs, freshness timestamp, Fixed Top-5 League Club ROI chart grid, `/command` Explorer Command Bar (`/club-roi`, `/scouting-u23`, `/ucl-vs-domestic`, `/super-subs`, `/players`, `/transfers`, or player name search), snapshot progress bars, Q2/Q4 preview cards |
-| `/club-roi` | `ClubRoiPage` | AppShell | **Q1 · Club Transfer ROI** — Fixed Top-5 League ROI bar charts, paginated table, CSV export |
-| `/scouting` | `ScoutingU23Page` | AppShell | **Q2 · ML U23 Scouting** — Fixed Top-5 League market value vs. ML fair value scatter charts, undervalued ratio rankings, CSV export |
-| `/ucl-vs-domestic` | `UclVsDomesticPage` | AppShell | **Q3 · UCL vs Domestic** — Fixed Top-5 League diverging Goals/90 delta charts, paginated comparison table, CSV export |
-| `/super-subs` | `SuperSubsPage` | AppShell | **Q4 · Super-Subs** — Fixed Top-5 League `CapsuleComparisonChart` (bench vs. starter G+A/90 with hover tooltips), Super-Sub Score leaderboard, CSV export |
-| `/players`, `/players/:id` | `PlayersPage`, `PlayerDetailPage` | AppShell | **Silver Players CRUD** — Debounced search, multi-filter bar, paginated table (`limit <= 100`), inline-validated create/edit modal matching NestJS `ValidationPipe` (`forbidNonWhitelisted`), valuation trajectory chart, transfer history, delete confirmation, CSV export |
-| `/transfers` | `TransfersPage` | AppShell | **Silver Transfers CRUD** — Multi-filter paginated table, transfer detail modal, inline-validated create/edit modal, delete confirmation, CSV export |
+| `/club-roi` | `ClubRoiPage` | AppShell | **Q1 · Club Transfer ROI:** Fixed Top-5 League ROI bar charts, paginated table, CSV export |
+| `/scouting` | `ScoutingU23Page` | AppShell | **Q2 · ML U23 Scouting:** Fixed Top-5 League market value vs. ML fair value scatter charts, undervalued ratio rankings, CSV export |
+| `/ucl-vs-domestic` | `UclVsDomesticPage` | AppShell | **Q3 · UCL vs Domestic:** Fixed Top-5 League diverging Goals/90 delta charts, paginated comparison table, CSV export |
+| `/super-subs` | `SuperSubsPage` | AppShell | **Q4 · Super-Subs:** Fixed Top-5 League `CapsuleComparisonChart` (bench vs. starter G+A/90 with hover tooltips), Super-Sub Score leaderboard, CSV export |
+| `/players`, `/players/:id` | `PlayersPage`, `PlayerDetailPage` | AppShell | **Silver Players CRUD:** Debounced search, multi-filter bar, paginated table (`limit <= 100`), inline-validated create/edit modal matching NestJS `ValidationPipe` (`forbidNonWhitelisted`), valuation trajectory chart, transfer history, delete confirmation, CSV export |
+| `/transfers` | `TransfersPage` | AppShell | **Silver Transfers CRUD:** Multi-filter paginated table, transfer detail modal, inline-validated create/edit modal, delete confirmation, CSV export |
 | `/profile` | `ProfilePage` | `ProtectedRoute` | Authenticated user account & session details |
 | `/system`, `/admin` | `SystemPage` | AppShell / `admin` (`ProtectedRoute`) | Live `GET /health` latency & status check, Live API vs. Demo Mode switcher, RBAC role display, and admin-only `POST /admin/pipeline/trigger` (`/admin` enforces `allowedRoles={['admin']}`) |
 
 ### Cross-Cutting UX
 - **Bilingual UI (`i18next`):** English default with live English / French (`EN` / `FR`) switching persisted in `localStorage`, plus locale-aware EUR currency, compact number, and date formatting.
 - **Dual Theme (`ThemeContext`):** Instant toggle between `data-theme="light"` (editorial canvas) and `data-theme="dark"` (obsidian/lime contrast).
-- **CSV Export (`exportToCsv`):** One-click export across all Q1–Q4 analytics views, Players, and Transfers.
+- **CSV Export (`exportToCsv`):** One-click export across all Q1 to Q4 analytics views, Players, and Transfers.
 - **Responsive Design:** Adaptive grid and navigation layout verified across desktop and `390px` mobile viewports.
-
----
 
 ## 🔌 Backend API Integration
 
@@ -96,8 +88,6 @@ All requests target `VITE_API_BASE_URL` (default: `http://localhost:3000/api/v1`
 
 > **Offline / Demo Mode:** When Demo Mode is enabled in the UI, `analyticsApi`, `playersApi`, `transfersApi`, and `AuthContext` resolve against local in-memory fixtures in `src/shared/mocks/demoData.ts`.
 
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -113,8 +103,6 @@ npm run dev
 
 The Vite dev server runs with `strictPort: true` on **`http://localhost:5173`**, matching the backend default `CORS_ORIGIN=http://localhost:5173`.
 
----
-
 ## ⚙️ Environment Variables
 
 Copy `.env.example` to `.env` and adjust as needed:
@@ -122,10 +110,8 @@ Copy `.env.example` to `.env` and adjust as needed:
 | Variable | Default | Purpose |
 | :--- | :--- | :--- |
 | `VITE_API_BASE_URL` | `http://localhost:3000/api/v1` | Base URL for all NestJS REST API calls |
-| `VITE_GOOGLE_CLIENT_ID` | *(empty — optional)* | Google Identity Services (GIS) Web Client ID |
-| `VITE_GOOGLE_OAUTH_URL` | *(empty — optional)* | Backend Google OAuth redirect URL (e.g. `http://localhost:3000/api/v1/auth/google`) |
-
----
+| `VITE_GOOGLE_CLIENT_ID` | *(optional, empty by default)* | Google Identity Services (GIS) Web Client ID |
+| `VITE_GOOGLE_OAUTH_URL` | *(optional, empty by default)* | Backend Google OAuth redirect URL (e.g. `http://localhost:3000/api/v1/auth/google`) |
 
 ## 📂 Project Structure
 
@@ -175,8 +161,6 @@ frontend/
 └── vite.config.ts                       # Vite, Tailwind CSS v4, chunking & Vitest config
 ```
 
----
-
 ## 🛠️ Scripts & Testing
 
 ```bash
@@ -192,8 +176,6 @@ npx vitest run       # Run all Vitest unit tests once (single-run verification)
 Powered by **Vitest** (`jsdom`) and **Testing Library** across 10 test suites:
 - **Components & Pages:** `LeagueChartsGrid.test.tsx`, `CapsuleComparisonChart.test.tsx`, `LoginPage.test.tsx`, `RouteGuards.test.tsx`, `PlayerFormModal.test.tsx`
 - **Utilities & Core Logic:** `cleanCodeHelpers.test.ts`, `formatters.test.ts`, `i18n.test.ts`, `jwtUtils.test.ts`, `payloadMappers.test.ts`
-
----
 
 ## 🌿 Git Flow
 
