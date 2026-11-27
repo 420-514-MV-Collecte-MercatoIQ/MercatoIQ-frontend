@@ -23,7 +23,11 @@ import {
   AnalyticsFilterBar,
   type AnalyticsFiltersState,
 } from '../../analytics/components/AnalyticsFilterBar';
-import { useClubRoiQuery } from '../../analytics/hooks/useAnalyticsQueries';
+import {
+  useClubRoiByLeagueQueries,
+  useClubRoiQuery,
+} from '../../analytics/hooks/useAnalyticsQueries';
+import { LeagueChartsGrid } from '../../analytics/components/LeagueChartsGrid';
 import type { GoldClubTransferRoi } from '../../../shared/types/domain.types';
 import {
   formatCompactEur,
@@ -53,6 +57,11 @@ export function ClubRoiPage() {
     page,
     limit,
   });
+
+  const clubRoiByLeague = useClubRoiByLeagueQueries(
+    { season: filters.season, club_id: filters.club_id },
+    5,
+  );
 
   const rows = query.data?.data ?? [];
 
@@ -256,6 +265,38 @@ export function ClubRoiPage() {
           </Card>
         </div>
       )}
+
+      <LeagueChartsGrid
+        kicker="Q1 · FIXED LEAGUE CHARTS"
+        title={t('analytics.fixedLeagueRoiTitle')}
+        subtitle={t('analytics.fixedLeagueRoiSubtitle')}
+        series={clubRoiByLeague}
+        selectedLeague={filters.competition_id}
+        onSelectLeague={(competition_id) => handleFilterChange({ ...filters, competition_id })}
+        chartHeight={220}
+        renderChart={(items) => (
+          <StripedBarChart
+            data={items.map((c) => ({
+              label: c.club_name,
+              shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
+              value: normalizeRoiPercent(c.roi) ?? 0,
+              displayValue: formatRoiPercent(c.roi, lang),
+              subLabel: `${c.season}`,
+              extraRows: [
+                { label: t('clubRoi.columns.feesPaid'), value: formatCompactEur(c.total_fees_paid_eur, lang) },
+                {
+                  label: t('clubRoi.columns.valueGain'),
+                  value: formatCompactEur(c.total_value_gain_eur, lang),
+                  tone: c.total_value_gain_eur >= 0 ? 'positive' : 'negative',
+                },
+              ],
+            }))}
+            height={220}
+            valueLabel="ROI"
+            tickFormatter={(v) => `${v}%`}
+          />
+        )}
+      />
 
       <Card>
         <DataTable

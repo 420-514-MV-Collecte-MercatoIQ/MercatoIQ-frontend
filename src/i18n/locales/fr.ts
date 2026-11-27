@@ -290,6 +290,23 @@ export const fr: TranslationDictionary = {
     playerSearchPlaceholder: 'Rechercher un joueur...',
     clubSearchPlaceholder: 'Rechercher un club d’arrivée...',
   },
+  analytics: {
+    leaguesShown: 'ligues',
+    showAllLeagues: 'Afficher toutes les ligues',
+    focusLeague: 'Filtrer',
+    fixedLeagueRoiTitle: 'ROI Transferts par Ligue (Top 5 fixe)',
+    fixedLeagueRoiSubtitle:
+      'Un graphe fixe dédié pour chaque grand championnat européen — utilisez les filtres pour affiner par saison, club ou ligue.',
+    fixedLeagueScoutingTitle: 'Juste Valeur ML U23 vs Marché par Ligue',
+    fixedLeagueScoutingSubtitle:
+      'Graphes fixes de scouting par championnat sur le Top 5 européen — filtrables par saison, poste ou ligue.',
+    fixedLeagueUclTitle: 'Delta UCL vs Championnat par Ligue',
+    fixedLeagueUclSubtitle:
+      'Graphes fixes d’écart de performance Ligue des Champions vs championnat domestique pour chacune des 5 ligues.',
+    fixedLeagueSuperSubsTitle: 'Impact Super-Subs par Ligue',
+    fixedLeagueSuperSubsSubtitle:
+      'Graphes fixes comparant Remplaçant vs Titulaire (B+P/90) pour chacun des 5 grands championnats.',
+  },
   positions: {
     Attack: 'Attaquant',
     Midfield: 'Milieu',

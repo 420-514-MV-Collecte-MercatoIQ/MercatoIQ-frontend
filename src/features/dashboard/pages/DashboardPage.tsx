@@ -34,11 +34,13 @@ import {
   type AnalyticsFiltersState,
 } from '../../analytics/components/AnalyticsFilterBar';
 import {
+  useClubRoiByLeagueQueries,
   useClubRoiQuery,
   useKpisQuery,
   useScoutingU23Query,
   useSuperSubsQuery,
 } from '../../analytics/hooks/useAnalyticsQueries';
+import { LeagueChartsGrid } from '../../analytics/components/LeagueChartsGrid';
 import { DashboardPreviewCards } from '../components/DashboardPreviewCards';
 import { ExplorerCommandBar } from '../components/ExplorerCommandBar';
 
@@ -51,6 +53,10 @@ export function DashboardPage() {
 
   const kpisQuery = useKpisQuery(filters);
   const clubRoiQuery = useClubRoiQuery({ ...filters, page: 1, limit: 6 });
+  const clubRoiByLeague = useClubRoiByLeagueQueries(
+    { season: filters.season, club_id: filters.club_id },
+    5,
+  );
   const scoutingQuery = useScoutingU23Query({ ...filters, page: 1, limit: 4 });
   const superSubsQuery = useSuperSubsQuery({ ...filters, page: 1, limit: 4 });
 
@@ -228,6 +234,30 @@ export function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      <LeagueChartsGrid
+        kicker="TOP 5 · FIXED LEAGUE CHARTS"
+        title={t('analytics.fixedLeagueRoiTitle')}
+        subtitle={t('analytics.fixedLeagueRoiSubtitle')}
+        series={clubRoiByLeague}
+        selectedLeague={filters.competition_id}
+        onSelectLeague={(competition_id) => setFilters((prev) => ({ ...prev, competition_id }))}
+        chartHeight={210}
+        renderChart={(items) => (
+          <StripedBarChart
+            data={items.map((c) => ({
+              label: c.club_name,
+              shortLabel: c.club_name.split(' ').slice(0, 2).join(' '),
+              value: normalizeRoiPercent(c.roi) ?? 0,
+              displayValue: formatRoiPercent(c.roi, lang),
+              subLabel: `${c.season}`,
+            }))}
+            height={210}
+            valueLabel="ROI"
+            tickFormatter={(v) => `${v}%`}
+          />
+        )}
+      />
 
       <DashboardPreviewCards
         scoutingRows={scoutingRows}

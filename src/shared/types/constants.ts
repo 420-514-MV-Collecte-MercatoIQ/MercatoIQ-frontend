@@ -17,6 +17,12 @@ export const COMPETITIONS: CompetitionOption[] = [
   { id: 'PO1', label: 'Liga Portugal', country: 'Portugal' },
 ];
 
+export const TOP_FIVE_LEAGUE_IDS = ['GB1', 'ES1', 'IT1', 'L1', 'FR1'] as const;
+
+export const TOP_FIVE_LEAGUES: CompetitionOption[] = COMPETITIONS.filter((c) =>
+  (TOP_FIVE_LEAGUE_IDS as readonly string[]).includes(c.id),
+);
+
 export const DOMESTIC_COMPETITIONS: CompetitionOption[] = COMPETITIONS.filter(
   (c) => c.id !== 'CL',
 );

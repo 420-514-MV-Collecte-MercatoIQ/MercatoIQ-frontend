@@ -15,7 +15,11 @@ import {
   AnalyticsFilterBar,
   type AnalyticsFiltersState,
 } from '../../analytics/components/AnalyticsFilterBar';
-import { useSuperSubsQuery } from '../../analytics/hooks/useAnalyticsQueries';
+import {
+  useSuperSubsByLeagueQueries,
+  useSuperSubsQuery,
+} from '../../analytics/hooks/useAnalyticsQueries';
+import { LeagueChartsGrid } from '../../analytics/components/LeagueChartsGrid';
 import type { GoldSuperSubs } from '../../../shared/types/domain.types';
 import { formatPer90 } from '../../../shared/utils/formatters';
 import { getCompetitionLabel } from '../../../shared/types/constants';
@@ -38,6 +42,11 @@ export function SuperSubsPage() {
     page,
     limit,
   });
+
+  const superSubsByLeague = useSuperSubsByLeagueQueries(
+    { season: filters.season, position: filters.position, club_id: filters.club_id },
+    4,
+  );
 
   const rows = query.data?.data ?? [];
   const maxScore = Math.max(100, ...rows.map((r) => r.super_sub_score ?? 0));
@@ -201,6 +210,34 @@ export function SuperSubsPage() {
           </Card>
         </div>
       )}
+
+      <LeagueChartsGrid
+        kicker="Q4 · FIXED LEAGUE CHARTS"
+        title={t('analytics.fixedLeagueSuperSubsTitle')}
+        subtitle={t('analytics.fixedLeagueSuperSubsSubtitle')}
+        series={superSubsByLeague}
+        selectedLeague={filters.competition_id}
+        onSelectLeague={(competition_id) => {
+          setFilters((prev) => ({ ...prev, competition_id }));
+          resetPage();
+        }}
+        chartHeight={220}
+        renderChart={(items) => (
+          <CapsuleComparisonChart
+            items={items.map((r) => ({
+              id: `${r.player_id}-${r.season}-${r.competition_id}`,
+              label: r.player_name,
+              subLabel: r.club_name || getCompetitionLabel(r.competition_id),
+              primaryValue: r.sub_goal_contributions_per_90,
+              secondaryValue: r.starter_goal_contributions_per_90,
+              primaryDisplay: formatPer90(r.sub_goal_contributions_per_90, lang),
+              secondaryDisplay: formatPer90(r.starter_goal_contributions_per_90, lang),
+            }))}
+            primaryLegend={t('superSubs.columns.subPer90')}
+            secondaryLegend={t('superSubs.columns.starterPer90')}
+          />
+        )}
+      />
 
       <Card>
         <DataTable

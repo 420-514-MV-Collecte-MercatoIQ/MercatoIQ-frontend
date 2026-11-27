@@ -25,7 +25,11 @@ import {
   AnalyticsFilterBar,
   type AnalyticsFiltersState,
 } from '../../analytics/components/AnalyticsFilterBar';
-import { useScoutingU23Query } from '../../analytics/hooks/useAnalyticsQueries';
+import {
+  useScoutingU23ByLeagueQueries,
+  useScoutingU23Query,
+} from '../../analytics/hooks/useAnalyticsQueries';
+import { LeagueChartsGrid } from '../../analytics/components/LeagueChartsGrid';
 import type { GoldUndervaluedScouting } from '../../../shared/types/domain.types';
 import {
   formatCompactEur,
@@ -53,6 +57,11 @@ export function ScoutingU23Page() {
     page,
     limit,
   });
+
+  const scoutingByLeague = useScoutingU23ByLeagueQueries(
+    { season: filters.season, position: filters.position, club_id: filters.club_id },
+    8,
+  );
 
   const rows = query.data?.data ?? [];
 
@@ -266,6 +275,73 @@ export function ScoutingU23Page() {
           </Card>
         </div>
       )}
+
+      <LeagueChartsGrid
+        kicker="Q2 · FIXED LEAGUE CHARTS"
+        title={t('analytics.fixedLeagueScoutingTitle')}
+        subtitle={t('analytics.fixedLeagueScoutingSubtitle')}
+        series={scoutingByLeague}
+        selectedLeague={filters.competition_id}
+        onSelectLeague={(competition_id) => {
+          setFilters((prev) => ({ ...prev, competition_id }));
+          resetPage();
+        }}
+        chartHeight={220}
+        renderChart={(items) => {
+          const pts = items.map((p) => ({
+            name: p.player_name,
+            club: p.club_name || p.competition_id,
+            marketM: Math.round((p.market_value_eur / 1_000_000) * 10) / 10,
+            estimatedM: Math.round((p.estimated_value_eur / 1_000_000) * 10) / 10,
+            ratio: p.undervalue_ratio,
+          }));
+          return (
+            <div style={{ width: '100%', height: 220 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <ScatterChart margin={{ top: 10, right: 12, bottom: 4, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" />
+                  <XAxis
+                    type="number"
+                    dataKey="marketM"
+                    tickFormatter={(v) => `€${v}M`}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+                  />
+                  <YAxis
+                    type="number"
+                    dataKey="estimatedM"
+                    tickFormatter={(v) => `€${v}M`}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+                  />
+                  <ZAxis type="number" dataKey="ratio" range={[60, 220]} />
+                  <Tooltip
+                    cursor={{ strokeDasharray: '3 3' }}
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const d = payload[0].payload as (typeof pts)[number];
+                      return (
+                        <ChartTooltipCard
+                          title={d.name}
+                          subtitle={d.club}
+                          rows={[
+                            { label: t('scouting.columns.marketValue'), value: `€${d.marketM}M` },
+                            {
+                              label: t('scouting.columns.estimatedValue'),
+                              value: `€${d.estimatedM}M`,
+                              tone: 'positive',
+                            },
+                            { label: t('scouting.columns.ratio'), value: `${d.ratio.toFixed(2)}x` },
+                          ]}
+                        />
+                      );
+                    }}
+                  />
+                  <Scatter data={pts} fill="var(--accent-primary)" />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        }}
+      />
 
       <Card>
         <DataTable

@@ -287,6 +287,23 @@ export const en = {
     playerSearchPlaceholder: 'Search player name...',
     clubSearchPlaceholder: 'Search destination club...',
   },
+  analytics: {
+    leaguesShown: 'leagues',
+    showAllLeagues: 'Show all leagues',
+    focusLeague: 'Filter',
+    fixedLeagueRoiTitle: 'Transfer ROI by League (Fixed Top 5)',
+    fixedLeagueRoiSubtitle:
+      'Dedicated fixed ROI chart for each major European league — use the filter bar to narrow by season, club, or league.',
+    fixedLeagueScoutingTitle: 'U23 ML Fair Value vs Market Value by League',
+    fixedLeagueScoutingSubtitle:
+      'Fixed per-league scouting scatter charts across the Top 5 European leagues — filter by season, position, or league.',
+    fixedLeagueUclTitle: 'UCL vs Domestic Step-Up Delta by League',
+    fixedLeagueUclSubtitle:
+      'Fixed per-league Champions League performance delta charts for each Top 5 domestic competition.',
+    fixedLeagueSuperSubsTitle: 'Super-Subs Bench Impact by League',
+    fixedLeagueSuperSubsSubtitle:
+      'Fixed per-league Sub vs Starter G+A/90 comparison charts across the Top 5 European leagues.',
+  },
   positions: {
     Attack: 'Attack',
     Midfield: 'Midfield',

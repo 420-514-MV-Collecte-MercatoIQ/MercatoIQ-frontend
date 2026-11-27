@@ -25,7 +25,11 @@ import {
   AnalyticsFilterBar,
   type AnalyticsFiltersState,
 } from '../../analytics/components/AnalyticsFilterBar';
-import { useUclVsDomesticQuery } from '../../analytics/hooks/useAnalyticsQueries';
+import {
+  useUclVsDomesticByLeagueQueries,
+  useUclVsDomesticQuery,
+} from '../../analytics/hooks/useAnalyticsQueries';
+import { LeagueChartsGrid } from '../../analytics/components/LeagueChartsGrid';
 import type { GoldUclVsDomestic } from '../../../shared/types/domain.types';
 import { formatPer90, formatSignedDelta } from '../../../shared/utils/formatters';
 import { getCompetitionLabel } from '../../../shared/types/constants';
@@ -51,6 +55,11 @@ export function UclVsDomesticPage() {
     page,
     limit,
   });
+
+  const uclByLeague = useUclVsDomesticByLeagueQueries(
+    { season: filters.season, position: filters.position, club_id: filters.club_id },
+    6,
+  );
 
   const rows = query.data?.data ?? [];
 
@@ -280,6 +289,79 @@ export function UclVsDomesticPage() {
           </Card>
         </div>
       )}
+
+      <LeagueChartsGrid
+        kicker="Q3 · FIXED LEAGUE CHARTS"
+        title={t('analytics.fixedLeagueUclTitle')}
+        subtitle={t('analytics.fixedLeagueUclSubtitle')}
+        series={uclByLeague}
+        selectedLeague={filters.competition_id}
+        onSelectLeague={(competition_id) => {
+          setFilters((prev) => ({ ...prev, competition_id }));
+          resetPage();
+        }}
+        chartHeight={220}
+        renderChart={(items) => {
+          const pts = items.map((r) => ({
+            name: r.player_name.split(' ').slice(-1)[0],
+            fullName: r.player_name,
+            club: r.club_name || getCompetitionLabel(r.domestic_competition_id),
+            delta: r.goals_per_90_delta ?? 0,
+            uclG90: r.ucl_goals_per_90 ?? 0,
+            domG90: r.domestic_goals_per_90 ?? 0,
+          }));
+          return (
+            <div style={{ width: '100%', height: 220 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={pts} margin={{ top: 10, right: 8, left: 0, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--grid-line)" />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+                  />
+                  <ReferenceLine y={0} stroke="var(--border-strong)" />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      const d = payload[0].payload as (typeof pts)[number];
+                      return (
+                        <ChartTooltipCard
+                          title={d.fullName}
+                          subtitle={d.club}
+                          rows={[
+                            {
+                              label: t('ucl.columns.goalsDelta'),
+                              value: formatSignedDelta(d.delta, lang),
+                              tone: d.delta >= 0 ? 'positive' : 'negative',
+                            },
+                            { label: t('ucl.columns.uclG90'), value: formatPer90(d.uclG90, lang) },
+                            { label: t('ucl.columns.domesticG90'), value: formatPer90(d.domG90, lang) },
+                          ]}
+                        />
+                      );
+                    }}
+                  />
+                  <Bar dataKey="delta" radius={[6, 6, 6, 6]}>
+                    {pts.map((entry, idx) => (
+                      <Cell
+                        key={`${entry.fullName}-${idx}`}
+                        fill={entry.delta >= 0 ? 'var(--accent-positive)' : 'var(--accent-negative)'}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        }}
+      />
 
       <Card>
         <DataTable
