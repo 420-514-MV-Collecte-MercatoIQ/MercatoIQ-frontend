@@ -1,4 +1,4 @@
-# MercatoIQ — Client Web (frontend)
+# MercatoIQ Client Web (frontend)
 
 Application React qui consomme l'API REST MercatoIQ (`/api/v1`) et présente le tableau de bord utilisateur et le tableau de bord administrateur.
 
