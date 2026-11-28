@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles } from 'lucide-react';
 import { Spinner } from '../../../shared/components/ui/Loaders';
 import { getApiErrorMessage } from '../../../shared/api/httpClient';
 import { useDemoMode } from '../../../shared/context/DemoModeContext';
@@ -12,6 +11,13 @@ import { loadGoogleIdentityScript } from '../utils/googleIdentityLoader';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.toString().trim();
 const GOOGLE_OAUTH_URL = import.meta.env.VITE_GOOGLE_OAUTH_URL?.toString().trim();
+
+export function isGoogleAuthConfigured(): boolean {
+  return Boolean(
+    import.meta.env.VITE_GOOGLE_CLIENT_ID?.toString().trim() ||
+      import.meta.env.VITE_GOOGLE_OAUTH_URL?.toString().trim(),
+  );
+}
 
 function GoogleLogoSvg() {
   return (
@@ -38,14 +44,13 @@ function GoogleLogoSvg() {
 
 export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const { t } = useTranslation();
-  const { isDemoMode, enableDemoMode } = useDemoMode();
+  const { isDemoMode } = useDemoMode();
   const { loginWithGoogleCredential, loginWithGoogleDemo } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [loading, setLoading] = useState(false);
-  const [setupHintOpen, setSetupHintOpen] = useState(false);
 
   const redirectTarget = getRedirectPath(location.state);
 
@@ -63,8 +68,6 @@ export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signu
   };
 
   const handleGoogleClick = async () => {
-    setSetupHintOpen(false);
-
     if (isDemoMode) {
       await handleDemoGoogleSignIn();
       return;
@@ -76,7 +79,6 @@ export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signu
     }
 
     if (!GOOGLE_CLIENT_ID) {
-      setSetupHintOpen(true);
       return;
     }
 
@@ -122,35 +124,37 @@ export function GoogleAuthButton({ mode = 'signin' }: { mode?: 'signin' | 'signu
     mode === 'signup' ? t('googleAuth.signUpWithGoogle') : t('googleAuth.continueWithGoogle');
 
   return (
-    <div className="space-y-3">
-      <button
-        type="button"
-        disabled={loading}
-        onClick={() => void handleGoogleClick()}
-        className="h-11 w-full rounded-lg border border-[var(--border-strong)] bg-transparent hover:bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] text-sm font-semibold inline-flex items-center justify-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? <Spinner size="sm" /> : <GoogleLogoSvg />}
-        <span>{buttonLabel}</span>
-      </button>
+    <button
+      type="button"
+      disabled={loading}
+      onClick={() => void handleGoogleClick()}
+      className="h-11 w-full rounded-lg border border-[var(--border-strong)] bg-transparent hover:bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] text-sm font-semibold inline-flex items-center justify-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {loading ? <Spinner size="sm" /> : <GoogleLogoSvg />}
+      <span>{buttonLabel}</span>
+    </button>
+  );
+}
 
-      {setupHintOpen && (
-        <div className="rounded-lg p-3 bg-[var(--bg-surface-elevated)] border border-[var(--border-subtle)] text-xs space-y-2">
-          <p className="text-[var(--text-secondary)] leading-relaxed">
-            {t('googleAuth.missingConfigHint')}
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              enableDemoMode();
-              void handleDemoGoogleSignIn();
-            }}
-            className="inline-flex items-center gap-1.5 font-semibold text-[var(--accent-primary)] hover:underline cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>{t('googleAuth.tryGoogleDemo')}</span>
-          </button>
-        </div>
-      )}
-    </div>
+// Visible seulement si Google est configuré ou en mode démo
+export function GoogleAuthSection({ mode }: { mode: 'signin' | 'signup' }) {
+  const { t } = useTranslation();
+  const { isDemoMode } = useDemoMode();
+
+  if (!isDemoMode && !isGoogleAuthConfigured()) {
+    return null;
+  }
+
+  return (
+    <>
+      <div className="relative flex items-center justify-center py-1">
+        <div className="border-t border-[var(--border-subtle)] w-full" />
+        <span className="px-3 text-xs text-[var(--text-muted)] bg-[var(--bg-surface)]">
+          {t('googleAuth.orDivider')}
+        </span>
+        <div className="border-t border-[var(--border-subtle)] w-full" />
+      </div>
+      <GoogleAuthButton mode={mode} />
+    </>
   );
 }

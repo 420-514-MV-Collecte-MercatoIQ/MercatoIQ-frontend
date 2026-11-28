@@ -10,7 +10,7 @@ import { cn } from '../../../shared/utils/formatters';
 import { isValidEmail } from '../../../shared/utils/validation';
 import { AuthLayout } from '../components/AuthLayout';
 import { ForgotPasswordModal } from '../components/ForgotPasswordModal';
-import { GoogleAuthButton } from '../components/GoogleAuthButton';
+import { GoogleAuthSection } from '../components/GoogleAuthButton';
 import { PasswordField } from '../components/PasswordField';
 import { useAuth } from '../context/AuthContext';
 import { getRedirectPath } from '../utils/authSession';
@@ -144,15 +144,7 @@ export function LoginPage() {
         </button>
       </form>
 
-      <div className="relative flex items-center justify-center py-1">
-        <div className="border-t border-[var(--border-subtle)] w-full" />
-        <span className="px-3 text-xs text-[var(--text-muted)] bg-[var(--bg-surface)]">
-          {t('googleAuth.orDivider')}
-        </span>
-        <div className="border-t border-[var(--border-subtle)] w-full" />
-      </div>
-
-      <GoogleAuthButton mode="signin" />
+      <GoogleAuthSection mode="signin" />
 
       <ForgotPasswordModal
         open={forgotOpen}
