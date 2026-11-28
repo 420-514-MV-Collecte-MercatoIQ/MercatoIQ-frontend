@@ -1,6 +1,8 @@
 import { normalizePagination } from '../api/queryParams';
+import { COMPETITIONS } from '../types/constants';
 import type { PaginatedResponse } from '../types/common.types';
 import type {
+  ClubQueryParams,
   ClubRoiQueryParams,
   CreatePlayerPayload,
   CreateTransferPayload,
@@ -11,6 +13,8 @@ import type {
   GoldUndervaluedScouting,
   KpisQueryParams,
   PlayerQueryParams,
+  ReferenceClub,
+  ReferenceCompetition,
   ScoutingU23QueryParams,
   SilverPlayer,
   SilverTransfer,
@@ -26,6 +30,7 @@ import {
   DEMO_SUPER_SUBS,
   DEMO_UCL_VS_DOMESTIC,
 } from './analyticsFixtures';
+import { DEMO_CLUBS } from './referenceFixtures';
 import { INITIAL_DEMO_PLAYERS, INITIAL_DEMO_TRANSFERS } from './silverFixtures';
 
 let demoPlayersStore: SilverPlayer[] = [...INITIAL_DEMO_PLAYERS];
@@ -121,6 +126,25 @@ export const demoDataService = {
       return true;
     }).sort((a, b) => (b.super_sub_score ?? -999) - (a.super_sub_score ?? -999));
 
+    return paginateItems(filtered, page, limit);
+  },
+
+  getCompetitions(): ReferenceCompetition[] {
+    return COMPETITIONS.map((c) => ({
+      competition_id: c.id,
+      name: c.label,
+      country_name: c.country,
+    }));
+  },
+
+  getClubs(query: ClubQueryParams): PaginatedResponse<ReferenceClub> {
+    const { page, limit } = normalizePagination(query);
+    const search = query.search?.trim().toLowerCase();
+    const filtered = DEMO_CLUBS.filter((c) => {
+      if (query.competition_id && c.domestic_competition_id !== query.competition_id) return false;
+      if (search && !c.name.toLowerCase().includes(search)) return false;
+      return true;
+    }).sort((a, b) => a.name.localeCompare(b.name));
     return paginateItems(filtered, page, limit);
   },
 

@@ -8,6 +8,7 @@ import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { PageHeader } from '../../../shared/components/ui/PageHeader';
 import { FilterBar } from '../../../shared/components/ui/FilterBar';
+import { ClubSelect } from '../../../shared/components/ui/ClubSelect';
 import { Input, Select } from '../../../shared/components/ui/Input';
 import { DataTable, type DataColumn } from '../../../shared/components/ui/DataTable';
 import { Pagination } from '../../../shared/components/ui/Pagination';
@@ -18,10 +19,9 @@ import { useDebounce } from '../../../shared/hooks/useDebounce';
 import { useDocumentTitle } from '../../../shared/hooks/useDocumentTitle';
 import { usePagination } from '../../../shared/hooks/usePagination';
 import { POSITIONS } from '../../../shared/types/constants';
-import type { SilverPlayer } from '../../../shared/types/domain.types';
+import type { ClubOption, SilverPlayer } from '../../../shared/types/domain.types';
 import { exportToCsv } from '../../../shared/utils/exportCsv';
 import { formatCompactEur } from '../../../shared/utils/formatters';
-import { parsePositiveInt } from '../../../shared/utils/validation';
 import { PlayerFormModal } from '../components/PlayerFormModal';
 import {
   useDeletePlayerMutation,
@@ -40,7 +40,7 @@ export function PlayersPage() {
   const debouncedName = useDebounce(nameInput, 300);
   const [position, setPosition] = useState('');
   const [nationality, setNationality] = useState('');
-  const [clubId, setClubId] = useState('');
+  const [club, setClub] = useState<ClubOption | null>(null);
   const { page, limit, setPage, setLimit, resetPage } = usePagination(20);
 
   const [formOpen, setFormOpen] = useState(false);
@@ -55,7 +55,7 @@ export function PlayersPage() {
     name: debouncedName || undefined,
     position: position || undefined,
     nationality: nationality || undefined,
-    club_id: parsePositiveInt(clubId),
+    club_id: club?.club_id,
     page,
     limit,
   });
@@ -95,7 +95,7 @@ export function PlayersPage() {
     }
   };
 
-  const hasActiveFilters = Boolean(nameInput || position || nationality || clubId);
+  const hasActiveFilters = Boolean(nameInput || position || nationality || club);
 
   const columns: DataColumn<SilverPlayer>[] = [
     {
@@ -228,7 +228,7 @@ export function PlayersPage() {
           setNameInput('');
           setPosition('');
           setNationality('');
-          setClubId('');
+          setClub(null);
           resetPage();
         }}
       >
@@ -268,15 +268,12 @@ export function PlayersPage() {
             }}
           />
         </div>
-        <div className="w-32">
-          <Input
-            type="number"
-            min={1}
-            label={t('filters.clubId')}
-            placeholder={t('filters.clubIdPlaceholder')}
-            value={clubId}
-            onChange={(e) => {
-              setClubId(e.target.value);
+        <div className="w-56">
+          <ClubSelect
+            label={t('filters.club')}
+            value={club}
+            onChange={(next) => {
+              setClub(next);
               resetPage();
             }}
           />

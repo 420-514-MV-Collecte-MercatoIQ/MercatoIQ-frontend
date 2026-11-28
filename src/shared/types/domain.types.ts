@@ -9,6 +9,28 @@ export interface CurrentClub {
   contract_expiry?: string;
 }
 
+export interface ClubOption {
+  club_id: number;
+  club_name: string;
+}
+
+export interface ReferenceClub {
+  club_id: number;
+  name: string;
+  domestic_competition_id?: string;
+}
+
+export interface ReferenceCompetition {
+  competition_id: string;
+  name: string;
+  country_name?: string;
+}
+
+export interface ClubQueryParams extends PaginationParams {
+  search?: string;
+  competition_id?: string;
+}
+
 export interface MarketValuation {
   date: string;
   market_value_eur: number;

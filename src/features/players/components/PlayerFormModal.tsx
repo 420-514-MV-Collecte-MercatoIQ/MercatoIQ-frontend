@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Trash2 } from 'lucide-react';
 import { Modal } from '../../../shared/components/ui/Modal';
+import { ClubSelect } from '../../../shared/components/ui/ClubSelect';
 import { Input, Select } from '../../../shared/components/ui/Input';
 import { Button } from '../../../shared/components/ui/Button';
 import { FOOT_OPTIONS, POSITIONS } from '../../../shared/types/constants';
@@ -273,20 +274,20 @@ export function PlayerFormModal({ open, onClose, editingPlayer }: PlayerFormModa
             {t('players.form.clubSection')}
           </p>
           <div className="grid sm:grid-cols-2 gap-3">
-            <Input
-              type="number"
-              min={1}
-              label={t('players.form.clubId')}
-              value={values.club_id}
-              onChange={(e) => setField('club_id', e.target.value)}
-              placeholder="583"
-            />
-            <Input
-              label={t('players.form.clubName')}
-              value={values.club_name}
-              onChange={(e) => setField('club_name', e.target.value)}
-              placeholder="Paris Saint-Germain"
-            />
+            <div className="sm:col-span-2">
+              <ClubSelect
+                label={t('players.form.club')}
+                value={
+                  values.club_id
+                    ? { club_id: Number(values.club_id), club_name: values.club_name }
+                    : null
+                }
+                onChange={(club) => {
+                  setField('club_id', club ? String(club.club_id) : '');
+                  setField('club_name', club?.club_name ?? '');
+                }}
+              />
+            </div>
             <Input
               type="date"
               label={t('players.form.joinedDate')}

@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '../../../shared/components/ui/Modal';
+import { ClubSelect } from '../../../shared/components/ui/ClubSelect';
 import { Input, Select } from '../../../shared/components/ui/Input';
 import { Button } from '../../../shared/components/ui/Button';
-import { COMPETITIONS, POSITIONS, TRANSFER_TYPES } from '../../../shared/types/constants';
+import { useCompetitionOptions } from '../../../shared/hooks/useCompetitionOptions';
+import { POSITIONS, TRANSFER_TYPES } from '../../../shared/types/constants';
 import type { SilverTransfer, TransferType } from '../../../shared/types/domain.types';
 import { toDateInputValue } from '../../../shared/utils/formatters';
 import {
@@ -69,6 +71,7 @@ export function TransferFormModal({
   editingTransfer,
 }: TransferFormModalProps) {
   const { t } = useTranslation();
+  const competitions = useCompetitionOptions();
   const { showToast } = useToast();
   const createMutation = useCreateTransferMutation();
   const updateMutation = useUpdateTransferMutation();
@@ -188,7 +191,7 @@ export function TransferFormModal({
             value={values.competition_id}
             onChange={(e) => setField('competition_id', e.target.value)}
           >
-            {COMPETITIONS.map((c) => (
+            {competitions.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.label} ({c.id})
               </option>
@@ -207,33 +210,29 @@ export function TransferFormModal({
             ))}
           </Select>
 
-          <Input
-            type="number"
-            min={1}
-            label={t('transfers.form.fromClubId')}
-            value={values.from_club_id}
-            onChange={(e) => setField('from_club_id', e.target.value)}
-            placeholder="583"
+          <ClubSelect
+            label={t('transfers.form.fromClub')}
+            value={
+              values.from_club_id
+                ? { club_id: Number(values.from_club_id), club_name: values.from_club_name }
+                : null
+            }
+            onChange={(club) => {
+              setField('from_club_id', club ? String(club.club_id) : '');
+              setField('from_club_name', club?.club_name ?? '');
+            }}
           />
-          <Input
-            label={t('transfers.form.fromClubName')}
-            value={values.from_club_name}
-            onChange={(e) => setField('from_club_name', e.target.value)}
-            placeholder="Paris Saint-Germain"
-          />
-          <Input
-            type="number"
-            min={1}
-            label={t('transfers.form.toClubId')}
-            value={values.to_club_id}
-            onChange={(e) => setField('to_club_id', e.target.value)}
-            placeholder="418"
-          />
-          <Input
-            label={t('transfers.form.toClubName')}
-            value={values.to_club_name}
-            onChange={(e) => setField('to_club_name', e.target.value)}
-            placeholder="Real Madrid"
+          <ClubSelect
+            label={t('transfers.form.toClub')}
+            value={
+              values.to_club_id
+                ? { club_id: Number(values.to_club_id), club_name: values.to_club_name }
+                : null
+            }
+            onChange={(club) => {
+              setField('to_club_id', club ? String(club.club_id) : '');
+              setField('to_club_name', club?.club_name ?? '');
+            }}
           />
 
           <Input

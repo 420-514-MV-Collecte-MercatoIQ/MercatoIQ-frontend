@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { FilterBar } from '../../../shared/components/ui/FilterBar';
 import { Input, Select } from '../../../shared/components/ui/Input';
-import { COMPETITIONS, POSITIONS, SEASONS } from '../../../shared/types/constants';
+import { useCompetitionOptions } from '../../../shared/hooks/useCompetitionOptions';
+import { POSITIONS, SEASONS } from '../../../shared/types/constants';
 
 export interface TransfersFiltersState {
   clubSearch: string;
@@ -19,6 +20,7 @@ interface TransfersFilterBarProps {
 
 export function TransfersFilterBar({ filters, onChange, onReset }: TransfersFilterBarProps) {
   const { t } = useTranslation();
+  const competitions = useCompetitionOptions();
 
   const hasActiveFilters = Boolean(
     filters.clubSearch ||
@@ -66,7 +68,7 @@ export function TransfersFilterBar({ filters, onChange, onReset }: TransfersFilt
           onChange={(e) => update('competitionId', e.target.value)}
         >
           <option value="">{t('filters.allLeagues')}</option>
-          {COMPETITIONS.map((c) => (
+          {competitions.map((c) => (
             <option key={c.id} value={c.id}>
               {c.label} ({c.id})
             </option>
