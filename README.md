@@ -67,7 +67,7 @@ Across `/dashboard` and all four Gold analytical pages (`/club-roi`, `/scouting`
 | `/players`, `/players/:id` | `PlayersPage`, `PlayerDetailPage` | AppShell | **Silver Players CRUD:** Debounced search, multi-filter bar, paginated table (`limit <= 100`), inline-validated create/edit modal matching NestJS `ValidationPipe` (`forbidNonWhitelisted`), valuation trajectory chart, transfer history, delete confirmation, CSV export |
 | `/transfers` | `TransfersPage` | AppShell | **Silver Transfers CRUD:** Multi-filter paginated table, transfer detail modal, inline-validated create/edit modal, delete confirmation, CSV export |
 | `/profile` | `ProfilePage` | `ProtectedRoute` | Authenticated user account & session details |
-| `/system`, `/admin` | `SystemPage` | AppShell / `admin` (`ProtectedRoute`) | Live `GET /health` latency & status check, Live API vs. Demo Mode switcher, RBAC role display, and admin-only `POST /admin/pipeline/trigger` (`/admin` enforces `allowedRoles={['admin']}`) |
+| `/system`, `/admin` | `SystemPage` | AppShell / `admin` (`ProtectedRoute`) | Live `GET /health` latency & status check, Live API vs. Demo Mode switcher, RBAC role display, and admin-only `POST /admin/pipeline/trigger` (requires backend `OPS-01` module, currently planned on backend `develop`; `/admin` enforces `allowedRoles={['admin']}`) |
 
 ### Cross-Cutting UX
 - **Bilingual UI (`i18next`):** English default with live English / French (`EN` / `FR`) switching persisted in `localStorage`, plus locale-aware EUR currency, compact number, and date formatting.
@@ -86,7 +86,7 @@ All requests target `VITE_API_BASE_URL` (default: `http://localhost:3000/api/v1`
 | `analyticsApi.ts` | `GET /analytics/kpis`, `/analytics/club-roi`, `/analytics/scouting-u23`, `/analytics/ucl-vs-domestic`, `/analytics/super-subs` | Supports season, `competition_id` / `domestic_competition_id`, position, `club_id`, and pagination params |
 | `playersApi.ts` | `GET /players`, `GET /players/:id`, `POST /players`, `PATCH /players/:id`, `DELETE /players/:id` | Supports `PlayerFormModal` CRUD & `PlayerDetailPage` profile view |
 | `transfersApi.ts` | `GET /transfers`, `GET /transfers/:id`, `POST /transfers`, `PATCH /transfers/:id`, `DELETE /transfers/:id` | Supports `TransferFormModal` CRUD & `TransferDetailModal` |
-| `SystemPage.tsx` | `POST /admin/pipeline/trigger` | Admin-only action triggering the Python Medallion pipeline from the NestJS API |
+| `SystemPage.tsx` | `POST /admin/pipeline/trigger` | Admin-only action targeting the planned backend `OPS-01` endpoint to trigger the Python Medallion pipeline from the NestJS API |
 
 > **Offline / Demo Mode:** When Demo Mode is enabled in the UI, `analyticsApi`, `playersApi`, `transfersApi`, and `AuthContext` resolve against local in-memory fixtures in `src/shared/mocks/demoData.ts`.
 
@@ -175,9 +175,16 @@ npx vitest run       # Run all Vitest unit tests once (single-run verification)
 ```
 
 ### Unit Test Suite
-Powered by **Vitest** (`jsdom`) and **Testing Library** across 10 test suites:
-- **Components & Pages:** `LeagueChartsGrid.test.tsx`, `CapsuleComparisonChart.test.tsx`, `LoginPage.test.tsx`, `RouteGuards.test.tsx`, `PlayerFormModal.test.tsx`
-- **Utilities & Core Logic:** `cleanCodeHelpers.test.ts`, `formatters.test.ts`, `i18n.test.ts`, `jwtUtils.test.ts`, `payloadMappers.test.ts`
+Powered by **Vitest** (`jsdom`) and **Testing Library** across 12 test suites (37 tests):
+- **Components & Pages:** `LeagueChartsGrid.test.tsx`, `CapsuleComparisonChart.test.tsx`, `LoginPage.test.tsx`, `RouteGuards.test.tsx`, `PlayerFormModal.test.tsx`, `ErrorBoundary.test.tsx`
+- **Utilities & Core Logic:** `cleanCodeHelpers.test.ts`, `formatters.test.ts`, `i18n.test.ts`, `jwtUtils.test.ts`, `payloadMappers.test.ts`, `httpClient.test.ts`
+
+## Origin, Reuse & Adaptations
+
+The MercatoIQ web client in `frontend/` was created specifically for the 420-514 final project, combining AI-assisted UI scaffolding and visual component prototyping with manual full-stack architecture, security alignment, and API integration by the team.
+
+- **Key Adaptations & Integration:** Centralized Axios JWT Bearer interceptor and `401` session expiry dispatch (`httpClient.ts`), client-side validation aligned with NestJS `ValidationPipe` (`whitelist` and `forbidNonWhitelisted`), parallel Top-5 European league TanStack Query hooks (`use*ByLeagueQueries`), custom SVG and Recharts analytical visualizations (`StripedBarChart`, `CapsuleComparisonChart`, `PlayerValuationChart`), bilingual EN/FR `i18next` localization, and opt-in offline `DemoModeContext`.
+- **Open-Source Reuse & Governance:** Core libraries (`React`, `Vite`, `Tailwind CSS`, `TanStack Query`, `Recharts`, `i18next`, `Lucide`) are used under their respective open-source MIT/ISC licenses. Individual `IAGraphie` integrity declarations are submitted separately outside the public repository in accordance with course rules.
 
 ## Git Flow
 
